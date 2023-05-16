@@ -1,0 +1,99 @@
+########################## Elasticsearch Configuration #########################
+
+# ---------------------------------- Cluster -----------------------------------
+# Cluster name identifies your cluster for auto-discovery. If you're running
+# multiple clusters on the same network, make sure you're using unique names.
+# Use a descriptive name for your cluster:
+#
+cluster.name: "kanel-elk-docker"
+#
+# ------------------------------------ Node ------------------------------------
+# Node names are generated dynamically on startup, so you're relieved
+# from configuring them manually. You can tie this node to a specific name:
+# Use a descriptive name for the node:
+#
+node.name: "ELK Master"
+#
+# Add custom attributes to the node:
+#
+#node.attr.rack: r1
+#
+# Every node can be configured to allow or deny being eligible as the master,
+# and to allow or deny to store the data.
+#
+# Allow this node to be eligible as a master node (enabled by default):
+#
+# node.master: true
+#
+# Allow this node to store data (enabled by default):
+#
+# node.data: true
+#
+# ----------------------------------- Paths ------------------------------------
+#
+# Path to directory where to store the data (separate multiple locations by comma):
+#
+#path.data: /var/lib/elasticsearch
+#
+# Path to log files:
+#
+#path.logs: /var/log/elasticsearch
+#
+# ----------------------------------- Memory -----------------------------------
+# ElasticSearch performs poorly when JVM starts swapping: you should ensure that
+# it _never_ swaps.
+#
+# Lock the memory on startup:
+#
+bootstrap.memory_lock: true
+#
+# Make sure that the heap size is set to about half the memory available
+# on the system and that the owner of the process is allowed to use this
+# limit.
+#
+# ---------------------------------- Network -----------------------------------
+# Elasticsearch, by default, is only accessible on localhost, and listens
+# on port [9200-9300] for HTTP traffic and on port [9300-9400] for node-to-node
+# communication. (the range means that if the port is busy, it will automatically
+# try the next port).
+#
+# Set a different address here to expose this node on the network:
+#
+network.host: 0.0.0.0
+#
+# By default Elasticsearch listens for HTTP traffic on the first free port it
+# finds starting at 9200. Set a specific HTTP port here:
+#
+#http.port: 9200
+#
+# By default Elasticsearch listens for the node to node communication on the first 
+# free port it finds starting at 9300. Set a specific communication port here:
+#
+# transport.tcp.port: 9300
+#
+# --------------------------------- Discovery ----------------------------------
+# Pass an initial list of hosts to perform discovery when this node is started:
+# The default list of hosts is ["127.0.0.1", "[::1]"]
+#
+#discovery.seed_hosts: ["host1", "host2"]
+#
+# Bootstrap the cluster using an initial set of master-eligible nodes:
+#
+#cluster.initial_master_nodes: ["node-1", "node-2"]
+#
+discovery.type: single-node
+#
+# ---------------------------------- Security ----------------------------------
+# Enable all X-pack security features by 'true' and disable all by 'false'.
+#
+xpack.security.enabled: true
+#
+# Set this configuration to disable paid features, the self-generated license
+# gives access only to all the featues of an X-pack for 30 days.
+#
+xpack.license.self_generated.type: basic
+#
+# Note that you can set xpack.license.self_generated.type from 'basic' to 'trial'
+# if you wish to evaluate the commercial feature of X-pack for 30 days.
+#
+xpack.monitoring.collection.enabled: true
