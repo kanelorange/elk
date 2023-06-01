@@ -306,3 +306,6 @@ Here is an example with ELK Stack version 7.17.7:
       'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml'
   ```
 ### Run ELK Stack containers with DOCKER COMPOSE
+```console
+kanel@Mac-Pro elk % sudo docker compose up -d
+```
