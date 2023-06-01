@@ -1,5 +1,5 @@
-<a name="readme-top"></a>
 # How to deploy _ELK_ on Docker
+<a name="readme-top"></a>
 An Elastic Stack [Elasticsearch - Logstash - Kibana - Beats] running on Docker with Docker Compose
 
 <!-- INTRODUCTION -->
