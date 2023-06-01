@@ -305,6 +305,9 @@ Here is an example with ELK Stack version 7.17.7:
     command:
       'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml'
   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Run ELK Stack containers with DOCKER COMPOSE
 ```console
 kanel@Mac-Pro elk % sudo docker compose up -d
@@ -313,3 +316,5 @@ kanel@Mac-Pro elk % sudo docker compose up -d
 ```console
 kanel@Mac-Pro elk % sudo docker compose down
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
