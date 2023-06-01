@@ -309,3 +309,7 @@ Here is an example with ELK Stack version 7.17.7:
 ```console
 kanel@Mac-Pro elk % sudo docker compose up -d
 ```
+### Stop and remove containers
+```console
+kanel@Mac-Pro elk % sudo docker compose down
+```
