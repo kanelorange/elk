@@ -19,8 +19,6 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
 5. Access to a web browser to view the Kibana dashboard.
 6. Command-line interface/terminal access with sudo privileges.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Successful Tested Environment
 
 - Docker Host:
@@ -80,8 +78,6 @@ Here is an example with ELK Stack version 7.17.7:
   ELASTIC_PASSWORD="kanelelk"
   ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ### Preparing images with DOCKERFILE
 **1. Elasticsearch + Logstash + Kibana**
 - Create `Dockerfile` in `elk\elasticsearch_data` directory:
@@ -102,8 +98,6 @@ Here is an example with ELK Stack version 7.17.7:
   # Get image from Docker Hub
   FROM kibana:${ELK_VERSION}
   ```
-  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 **2. Metricbeat (monitoring Docker Host)**
 - Create `Dockerfile` in `elk\metricbeat_data` directory:
