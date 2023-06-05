@@ -107,9 +107,10 @@ Here is an example with ELK Stack version 7.17.7:
   FROM elastic/metricbeat:${ELK_VERSION}
   # Change file permission for docker module monitoring
   USER root
-  RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]
+
   USER metricbeat
   ```
+- Note that `/run/docker.sock` file is created after container is created successfull. You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]
 - Note that this image should grant permission to `docker.sock` file for _docker module_ monitoring.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
