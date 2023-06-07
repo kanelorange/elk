@@ -325,90 +325,106 @@ kanel@Mac-Pro elk % sudo docker compose down
 <!-- TROUBLESHOOTING -->
 ## Troubleshooting
 
-### How to fix Elasticsearch docker container errors
-___Error:___
-```ruby
-cont_elastic           | "stacktrace": "org.elasticsearch.bootstrap.StartupException: ElasticsearchException
-[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
-```
-<details>
-  <summary><b><i>Error Logs:</i></b></summary>
+>### How to fix Elasticsearch docker container errors
+>___Error:___
+>```ruby
+>cont_elastic           | "stacktrace": "org.elasticsearch.bootstrap.StartupException: ElasticsearchException
+>[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
+>```
+><details>
+>  <summary><b><i>Error Logs:</i></b></summary>
+>
+>```ruby
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-07T03:15:12,005Z", "level": "ERROR", "component": 
+>"o.e.b.ElasticsearchUncaughtExceptionHandler", "cluster.name": "kanel-elk-docker", "node.name": "ELK Master", "message": 
+>"uncaught exception in thread [main]", 
+>cont_elastic           | "stacktrace": ["org.elasticsearch.bootstrap.StartupException: ElasticsearchException[failed to bind service]; 
+>nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:173) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:160) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:77) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:112) ~[elasticsearch-cli-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.cli.Command.main(Command.java:77) ~[elasticsearch-cli-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:125) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:80) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "Caused by: org.elasticsearch.ElasticsearchException: failed to bind service",
+>cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:1088) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:309) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "... 6 more",
+>cont_elastic           | "Caused by: java.nio.file.AccessDeniedException: /usr/share/elasticsearch/data/nodes",
+>cont_elastic           | "at sun.nio.fs.UnixException.translateToIOException(UnixException.java:90) ~[?:?]",
+>cont_elastic           | "at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106) ~[?:?]",
+>cont_elastic           | "at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111) ~[?:?]",
+>cont_elastic           | "at sun.nio.fs.UnixFileSystemProvider.createDirectory(UnixFileSystemProvider.java:397) ~[?:?]",
+>cont_elastic           | "at java.nio.file.Files.createDirectory(Files.java:700) ~[?:?]",
+>cont_elastic           | "at java.nio.file.Files.createAndCheckIsDirectory(Files.java:807) ~[?:?]",
+>cont_elastic           | "at java.nio.file.Files.createDirectories(Files.java:793) ~[?:?]",
+>cont_elastic           | "at org.elasticsearch.env.NodeEnvironment.lambda$new$0(NodeEnvironment.java:300) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.env.NodeEnvironment$NodeLock.<init>(NodeEnvironment.java:224) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.env.NodeEnvironment.<init>(NodeEnvironment.java:298) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:429) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:309) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169) ~[elasticsearch-7.17.7.jar:7.17.7]",
+>cont_elastic           | "... 6 more"] }
+>cont_elastic           | uncaught exception in thread [main]
+>cont_elastic           | ElasticsearchException[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
+>cont_elastic           | Likely root cause: java.nio.file.AccessDeniedException: /usr/share/elasticsearch/data/nodes
+>cont_elastic           | 	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:90)
+>cont_elastic           | 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+>cont_elastic           | 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+>cont_elastic           | 	at java.base/sun.nio.fs.UnixFileSystemProvider.createDirectory(UnixFileSystemProvider.java:397)
+>cont_elastic           | 	at java.base/java.nio.file.Files.createDirectory(Files.java:700)
+>cont_elastic           | 	at java.base/java.nio.file.Files.createAndCheckIsDirectory(Files.java:807)
+>cont_elastic           | 	at java.base/java.nio.file.Files.createDirectories(Files.java:793)
+>cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment.lambda$new$0(NodeEnvironment.java:300)
+>cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment$NodeLock.<init>(NodeEnvironment.java:224)
+>cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment.<init>(NodeEnvironment.java:298)
+>cont_elastic           | 	at org.elasticsearch.node.Node.<init>(Node.java:429)
+>cont_elastic           | 	at org.elasticsearch.node.Node.<init>(Node.java:309)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:160)
+>cont_elastic           | 	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:77)
+>cont_elastic           | 	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:112)
+>cont_elastic           | 	at org.elasticsearch.cli.Command.main(Command.java:77)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:125)
+>cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:80)
+>cont_elastic           | For complete error details, refer to the log at /usr/share/elasticsearch/logs/kanel-elk-docker.log
+>cont_elastic exited with code 1
+>```
+></details>
+>
+>___Solution:___
+>- Change the permissions of the host directory that mapped to `/usr/share/elasticsearch/data`.
+>```console
+>kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
+>```
+>- For example in this instance, that directory is `elk/elasticsearch_data/es_data`.
+>```console
+>kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
+>```
 
-```ruby
-cont_elastic           | {"type": "server", "timestamp": "2023-06-07T03:15:12,005Z", "level": "ERROR", "component": 
-"o.e.b.ElasticsearchUncaughtExceptionHandler", "cluster.name": "kanel-elk-docker", "node.name": "ELK Master", "message": 
-"uncaught exception in thread [main]", 
-cont_elastic           | "stacktrace": ["org.elasticsearch.bootstrap.StartupException: ElasticsearchException[failed to bind service]; 
-nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:173) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:160) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:77) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:112) ~[elasticsearch-cli-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.cli.Command.main(Command.java:77) ~[elasticsearch-cli-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:125) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:80) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "Caused by: org.elasticsearch.ElasticsearchException: failed to bind service",
-cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:1088) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:309) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "... 6 more",
-cont_elastic           | "Caused by: java.nio.file.AccessDeniedException: /usr/share/elasticsearch/data/nodes",
-cont_elastic           | "at sun.nio.fs.UnixException.translateToIOException(UnixException.java:90) ~[?:?]",
-cont_elastic           | "at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106) ~[?:?]",
-cont_elastic           | "at sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111) ~[?:?]",
-cont_elastic           | "at sun.nio.fs.UnixFileSystemProvider.createDirectory(UnixFileSystemProvider.java:397) ~[?:?]",
-cont_elastic           | "at java.nio.file.Files.createDirectory(Files.java:700) ~[?:?]",
-cont_elastic           | "at java.nio.file.Files.createAndCheckIsDirectory(Files.java:807) ~[?:?]",
-cont_elastic           | "at java.nio.file.Files.createDirectories(Files.java:793) ~[?:?]",
-cont_elastic           | "at org.elasticsearch.env.NodeEnvironment.lambda$new$0(NodeEnvironment.java:300) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.env.NodeEnvironment$NodeLock.<init>(NodeEnvironment.java:224) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.env.NodeEnvironment.<init>(NodeEnvironment.java:298) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:429) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.node.Node.<init>(Node.java:309) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169) ~[elasticsearch-7.17.7.jar:7.17.7]",
-cont_elastic           | "... 6 more"] }
-cont_elastic           | uncaught exception in thread [main]
-cont_elastic           | ElasticsearchException[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
-cont_elastic           | Likely root cause: java.nio.file.AccessDeniedException: /usr/share/elasticsearch/data/nodes
-cont_elastic           | 	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:90)
-cont_elastic           | 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
-cont_elastic           | 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
-cont_elastic           | 	at java.base/sun.nio.fs.UnixFileSystemProvider.createDirectory(UnixFileSystemProvider.java:397)
-cont_elastic           | 	at java.base/java.nio.file.Files.createDirectory(Files.java:700)
-cont_elastic           | 	at java.base/java.nio.file.Files.createAndCheckIsDirectory(Files.java:807)
-cont_elastic           | 	at java.base/java.nio.file.Files.createDirectories(Files.java:793)
-cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment.lambda$new$0(NodeEnvironment.java:300)
-cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment$NodeLock.<init>(NodeEnvironment.java:224)
-cont_elastic           | 	at org.elasticsearch.env.NodeEnvironment.<init>(NodeEnvironment.java:298)
-cont_elastic           | 	at org.elasticsearch.node.Node.<init>(Node.java:429)
-cont_elastic           | 	at org.elasticsearch.node.Node.<init>(Node.java:309)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:234)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:234)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:434)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.init(Elasticsearch.java:169)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.execute(Elasticsearch.java:160)
-cont_elastic           | 	at org.elasticsearch.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:77)
-cont_elastic           | 	at org.elasticsearch.cli.Command.mainWithoutErrorHandling(Command.java:112)
-cont_elastic           | 	at org.elasticsearch.cli.Command.main(Command.java:77)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:125)
-cont_elastic           | 	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:80)
-cont_elastic           | For complete error details, refer to the log at /usr/share/elasticsearch/logs/kanel-elk-docker.log
-cont_elastic exited with code 1
-```
-</details>
+>### How to fix Metricbeat docker containers failed to start
+>___Error:___
+>```ruby  
+>dependency failed to start: container cont_kibana is unhealthy
+>```
+>___Solution:___
+>- Start Metricbeat containers or compose Elastic Stack again.
+>```console
+>kanel@Mac-Pro elk % sudo docker start cont_metricbeat_stack cont_metricbeat_host
+>(or/and)
+>kanel@Mac-Pro elk % sudo docker-compose up -d
+>```
 
-___Solution:___
-- Change the permissions of the host directory that mapped to `/usr/share/elasticsearch/data`.
-```console
-kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
-```
-- For example in this instance, that directory is `elk/elasticsearch_data/es_data`.
-```console
-kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
-```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
