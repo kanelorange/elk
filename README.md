@@ -1,5 +1,7 @@
 # How to deploy _ELK_ on Docker
 <a name="readme-top"></a>
+<!-- ABOUT -->
+## About
 An Elastic Stack [Elasticsearch - Logstash - Kibana - Beats] running on Docker with Docker Compose
 
 <!-- INTRODUCTION -->
