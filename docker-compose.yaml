@@ -39,7 +39,7 @@ services:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      #HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     healthcheck:
@@ -88,7 +88,8 @@ services:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_METRICBEAT_HOST: ${HOSTNAME_METRICBEAT_HOST}
+      HOSTNAME_METRICBEAT_STACK: ${HOSTNAME_METRICBEAT_STACK}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
 #=======================================
@@ -128,7 +129,8 @@ services:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_METRICBEAT_HOST: ${HOSTNAME_METRICBEAT_HOST}
+      HOSTNAME_METRICBEAT_STACK: ${HOSTNAME_METRICBEAT_STACK}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     healthcheck:
@@ -138,8 +140,68 @@ services:
       timeout: 30s
       retries: 30
 #=======================================
-  # Metricbeat container
-  metricbeat:
+  # Metricbeat container to setup Elastic Stack monitoring
+  metricbeat_stack:
+  # Wait until < E-L-K > has started
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      logstash:
+        condition: service_started
+      kibana:
+        condition: service_healthy
+    container_name: cont_metricbeat_stack
+    #-----------------------------------
+    # Pull image via docker-compose file
+    #image: elastic/metricbeat:${ELK_VERSION}
+    #-----------------------------------
+    # Build image via Dockerfile
+    build:
+      context: ./metricbeat_stack
+      dockerfile: Dockerfile
+      tags:
+        - "kanelorange/metricbeat-stack:${ELK_VERSION}"
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    #-----------------------------------
+    hostname: ${HOSTNAME_METRICBEAT_STACK}
+    networks:
+      - localnet
+    volumes:
+      # Mount metricbeat configuration file to container
+      - type: bind
+        source: ./metricbeat_stack/metricbeat.yml
+        #target: /usr/share/metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+      # Mount docker-host-monitoring directories to container
+      #- /:/hostfs:ro
+      #- /proc:/hostfs/proc:ro
+      #- /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
+    environment:
+      HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
+      HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
+      HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
+      HOSTNAME_METRICBEAT_STACK: ${HOSTNAME_METRICBEAT_STACK}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    #-----------------------------------
+    # Run metricbeat setup with mounted configuration file
+    #command:
+    #  'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml -system.hostfs=/hostfs -strict.perms=false'
+    #-----------------------------------
+    # Or run metricbeat setup with command and overwrite configuration
+    #command:
+      #'metricbeat setup -e
+      #-E setup.kibana.host=${HOSTNAME_KIBANA}:5601
+      #-E output.elasticsearch.hosts=["${HOSTNAME_ELASTIC}:9200"]
+      #-E output.elasticsearch.username=${ELASTIC_USERNAME}
+      #-E output.elasticsearch.password=${ELASTIC_PASSWORD}'
+#=======================================
+  # Metricbeat container to monitor host
+  metricbeat_host:
   # Wait until < E-L-K > has started  
     depends_on:
       elasticsearch:
@@ -148,45 +210,52 @@ services:
         condition: service_started
       kibana:
         condition: service_healthy
-    container_name: cont_metricbeat
+    container_name: cont_metricbeat_host
     #-----------------------------------
     # Pull image via docker-compose file
     #image: elastic/metricbeat:${ELK_VERSION}
     #-----------------------------------
     # Build image via Dockerfile
     build:
-      context: ./metricbeat_data
+      context: ./metricbeat_host
       dockerfile: Dockerfile
       tags:
-        - "kanelorange/metricbeat:${ELK_VERSION}"
+        - "kanelorange/metricbeat-host:${ELK_VERSION}"
       args:
         ELK_VERSION: ${ELK_VERSION}
     #-----------------------------------
-    hostname: ${HOSTNAME_METRICBEAT}
+    hostname: ${HOSTNAME_METRICBEAT_HOST}
     networks:
       - localnet
     volumes:
       # Mount metricbeat configuration file to container
       - type: bind
-        source: ./metricbeat_data/metricbeat.yml
-        target: /usr/share/metricbeat/config/metricbeat.yml
+        source: ./metricbeat_host/metricbeat.yml
+        #target: /usr/share/metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
         read_only: true
       # Mount docker-host-monitoring directories to container
       - /:/hostfs:ro
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
     environment:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_METRICBEAT_HOST: ${HOSTNAME_METRICBEAT_HOST}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     #-----------------------------------
     # Run metricbeat setup with mounted configuration file
-    command:
-      'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml'
+    #restart: unless-stopped
+    #command:
+    #  - '/bin/sh'
+    #  - '-c'
+    #  - 'chmod 775 /run/docker.sock'
+    #  - 'metricbeat -e'
+    #  'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml -system.hostfs=/hostfs -strict.perms=false'
     #-----------------------------------
     # Or run metricbeat setup with command and overwrite configuration
     #command:
