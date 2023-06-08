@@ -13,14 +13,14 @@ metricbeat.modules:
     - network         # Network IO
     - process         # Per process metrics
     - process_summary # Process summary
-    - socket         # Sockets and connection info (linux only)
-    - socket_summary # Socket summary
+    - socket          # Sockets and connection info (linux only)
+    - socket_summary  # Socket summary
     - uptime          # System Uptime
-    #- filesystem      # File system usage for each mountpoint
-    #- fsstat          # File system summary metrics
-    #- diskio         # Disk IO
-    #- raid           # Raid '/sys/block'
-    #- service        # systemd service information '/run/systemd/private'
+    - filesystem      # File system usage for each mountpoint
+    - fsstat          # File system summary metrics
+    - diskio          # Disk IO
+    #- raid           # Raid for '/sys/block'
+    #- service        # systemd service information for '/run/systemd/private'
   enabled: true
   period: 10s
   processes: ['.*']
@@ -44,7 +44,7 @@ metricbeat.modules:
     - "image"
     - "memory"
     - "network"
-    #- "network_summary"   # error reading network namespace link
+    #- "network_summary"   # error reading network namespace link: readlink /proc/xxxx/ns/net
   hosts: ["unix:///var/run/docker.sock"]
   period: 10s
   enabled: true
@@ -127,6 +127,29 @@ setup.kibana:
 # Multiple selectors can be chained.
 #logging.selectors: [ ]
 
+# Send all logging output to stderr. The default is false.
+#logging.to_stderr: false
+
+# Send all logging output to syslog. The default is false.
+#logging.to_syslog: false
+
+# Send all logging output to Windows Event Logs. The default is false.
+#logging.to_eventlog: false
+
+# If enabled, Metricbeat periodically logs its internal metrics that have changed
+# in the last period. For each metric that changed, the delta from the value at
+# the beginning of the period is logged. Also, the total values for
+# all non-zero internal metrics are logged on shutdown. The default is true.
+#logging.metrics.enabled: true
+
+# The period after which to log the internal metrics. The default is 30s.
+#logging.metrics.period: 30s
+
+# A list of metrics namespaces to report in the logs. Defaults to [stats].
+# `stats` contains general Beat metrics. `dataset` may be present in some
+# Beats and contains module or input metrics.
+#logging.metrics.namespaces: [stats]
+
 # =============================== Template =====================================
 
 # A template is used to set the mapping in Elasticsearch
@@ -166,3 +189,19 @@ setup.kibana:
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html
   #_source:
     #enabled: false
+
+#============================== Xpack Monitoring ===============================
+
+# metricbeat can export internal metrics to a central Elasticsearch monitoring
+# cluster. This requires xpack monitoring to be enabled in Elasticsearch. The
+# reporting is disabled by default.
+
+# Set to true to enable the monitoring reporter.
+xpack.monitoring.enabled: true
+
+# Uncomment to send the metrics to Elasticsearch. Most settings from the
+# Elasticsearch output are accepted here as well. Any setting that is not set is
+# automatically inherited from the Elasticsearch output configuration, so if you
+# have the Elasticsearch output configured, you can simply uncomment the
+# following line.
+xpack.monitoring.elasticsearch:

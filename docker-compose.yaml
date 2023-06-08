@@ -30,7 +30,7 @@ services:
         source: ./elasticsearch_data/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      # Mount ALL elasticsearch instance data directory to container
+      # Mount Elastic Stack Instance Data directory to container
       - type: bind
         source: ./elasticsearch_data/es_data
         target: /usr/share/elasticsearch/data
@@ -39,7 +39,6 @@ services:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      #HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     healthcheck:
@@ -75,10 +74,12 @@ services:
       - "5044:5044"
       - "9600:9600"
     volumes:
+      # Mount logstash configuration file to container
       - type: bind
         source: ./logstash_data/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
+      # Mount logstash outputs configuration file to container
       - type: bind
         source: ./logstash_data/beats.conf
         target: /usr/share/logstash/beats.conf
@@ -95,7 +96,7 @@ services:
 #=======================================
   # Kibana container
   kibana:
-  # Wait until elasticsearch and logstash has started  
+  # Wait until elasticsearch and logstash have started  
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -121,6 +122,7 @@ services:
     ports:
       - "5601:5601"
     volumes:
+      # Mount kibana configuration file to container
       - type: bind
         source: ./kibana_data/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
@@ -140,7 +142,7 @@ services:
       timeout: 30s
       retries: 30
 #=======================================
-  # Metricbeat container to setup Elastic Stack monitoring
+  # Metricbeat container to setup Elastic Stack monitoring  
   metricbeat_stack:
   # Wait until < E-L-K > has started
     depends_on:
@@ -167,6 +169,8 @@ services:
     hostname: ${HOSTNAME_METRICBEAT_STACK}
     networks:
       - localnet
+    ports:
+      - "5066:5066"
     volumes:
       # Mount metricbeat configuration file to container
       - type: bind
@@ -174,10 +178,7 @@ services:
         #target: /usr/share/metricbeat/config/metricbeat.yml
         target: /usr/share/metricbeat/metricbeat.yml
         read_only: true
-      # Mount docker-host-monitoring directories to container
-      #- /:/hostfs:ro
-      #- /proc:/hostfs/proc:ro
-      #- /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      # Mount docker-host-running directory to container
       - /var/run/docker.sock:/var/run/docker.sock
     user: root
     environment:
@@ -188,6 +189,7 @@ services:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     #-----------------------------------
+    # Alternatives:
     # Run metricbeat setup with mounted configuration file
     #command:
     #  'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml -system.hostfs=/hostfs -strict.perms=false'
@@ -200,7 +202,7 @@ services:
       #-E output.elasticsearch.username=${ELASTIC_USERNAME}
       #-E output.elasticsearch.password=${ELASTIC_PASSWORD}'
 #=======================================
-  # Metricbeat container to monitor host
+  # Metricbeat container to monitor host environment
   metricbeat_host:
   # Wait until < E-L-K > has started  
     depends_on:
@@ -234,10 +236,11 @@ services:
         #target: /usr/share/metricbeat/config/metricbeat.yml
         target: /usr/share/metricbeat/metricbeat.yml
         read_only: true
-      # Mount docker-host-monitoring directories to container
+      # Mount docker-host-running directories to container
       - /:/hostfs:ro
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /run/systemd/private:/run/systemd/private:ro
       - /var/run/docker.sock:/var/run/docker.sock
     user: root
     environment:
@@ -248,8 +251,8 @@ services:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     #-----------------------------------
+    # Alternatives:
     # Run metricbeat setup with mounted configuration file
-    #restart: unless-stopped
     #command:
     #  - '/bin/sh'
     #  - '-c'
