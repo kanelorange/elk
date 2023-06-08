@@ -1,4 +1,4 @@
-# How to deploy _ELK_ on Docker
+# How to deploy Elastic Stack _(ELK)_ on Docker Engine
 <a name="readme-top"></a>
 <!-- ABOUT -->
 ## About
@@ -14,15 +14,19 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
 
 ### Prerequisites
 
-1. Connect to the Internet for project resources. 
-2. Docker is installed and configured.
-3. Docker Compose is installed and configured (recommended).
-4. Git is installed to clone the ELK Docker repository.
+1. Docker Host is connected to the Internet for downloading project components. 
+2. Docker Engine and Docker Compose are installed and configured (recommended).
+3. Git is installed to clone the ELK Docker repository (optional).
+4. Learn more about Elastic Stack at https://www.elastic.co/elastic-stack/.
 5. Access to a web browser to view the Kibana dashboard.
 6. Command-line interface/terminal access with sudo privileges.
 
 ### Successful Tested Environment
+___Best practice:___ CentOS 7 Server  
+Learn how to install Docker Engine on CentOS at https://docs.docker.com/engine/install/centos/.
 
+___Other environment:___ MacOS X  
+Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/install/mac-install/.  
 - Docker Host:
   - macOS Catalina 10.15.7
 - Docker Server:
