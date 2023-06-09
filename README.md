@@ -1,4 +1,4 @@
-# How to deploy Elastic Stack _(ELK)_ on Docker Engine
+# How to Deploy Elastic Stack _(ELK)_ on Docker Engine
 <a name="readme-top"></a>
 <!-- ABOUT -->
 ## About
@@ -22,6 +22,11 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
 6. Command-line interface/terminal access with sudo privileges.
 
 ### Successful Tested Environment
+___Chosen variables:___ These variables can be edited in `.env` file
+- ELK Stack demo version: `7.17.7`
+- Username: `elastic`
+- Password: `kanelelk`
+
 ___Best practice:___ CentOS 7 Server  
 Learn how to install Docker Engine on CentOS at https://docs.docker.com/engine/install/centos/.
 
@@ -37,14 +42,22 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Installation
+### Installation - TL;DR
 
 1. Open Visual Code Console or System Terminal or any Coding Editor
-2. (On macOS) Link host `docker.sock` to container `docker.sock`
+2. Sign in to GitHub
    ```console
-   kanel@Mac-Pro ~ % sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
-   Password:
-   ln: /var/run/docker.sock: File exists
+   (Syntax:)
+   https://<username>:<password>@github.com/<username>/<repository.git>
+   
+   (Add your user name:)
+   kanel@Mac-Pro ~ % git config --global user.name "your_username"
+   
+   (Add your email address:)
+   kanel@Mac-Pro ~ % git config --global user.email "your_email_address@example.com"
+   
+   (Check the configuration:)
+   kanel@Mac-Pro ~ % git config --global --list
    ```
 3. Clone the **elk** repository from GitHub
    ```console
@@ -60,8 +73,13 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    Password:
    ```
 6. Access to **Kibana Dashboard** via a web browser
+   ___From Docker Host:___
    ```console
    http://localhost:5601
+   ```
+   ___From other clients:___ access to Docker Host via IP address or hostname 
+   ```console
+   http://docker-hostname:5601
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -409,13 +427,13 @@ kanel@Mac-Pro elk % sudo docker compose down
 >
 >___Solution:___
 >- Change the permissions of the host directory that mapped to `/usr/share/elasticsearch/data`.
->```console
->kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
->```
+>   ```console
+>   kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
+>   ```
 >- For example in this instance, that directory is `elk/elasticsearch_data/es_data`.
->```console
->kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
->```
+>   ```console
+>   kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
+>   ```
 
 >### How to fix Metricbeat docker containers failed to start
 >___Error:___
@@ -424,11 +442,52 @@ kanel@Mac-Pro elk % sudo docker compose down
 >```
 >___Solution:___
 >- Start Metricbeat containers or compose Elastic Stack again.
+>   ```console
+>   kanel@Mac-Pro elk % sudo docker start cont_metricbeat_stack cont_metricbeat_host
+>   (or/and)
+>   kanel@Mac-Pro elk % sudo docker-compose up -d
+>   ```
+
+>### How to check Docker Engine is running
+>___Error:___
 >```console
->kanel@Mac-Pro elk % sudo docker start cont_metricbeat_stack cont_metricbeat_host
->(or/and)
->kanel@Mac-Pro elk % sudo docker-compose up -d
+>kanel@Mac-Pro elk % docker ps
+>Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
 >```
+>___Solution:___
+>- Run Docker Engine or start Docker Desktop
+>   ```console
+>   kanel@Mac-Pro elk % sudo systemctl start docker
+>   Password:
+>   ```
+  
+>### How to read `docker.sock` on MacOS
+>___Solution:___
+>- Link host `docker.sock` to container `docker.sock`
+>   ```console
+>   kanel@Mac-Pro ~ % sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
+>   Password:
+>   ln: /var/run/docker.sock: File exists
+>   ```
 
-
+>### How to fix Beats' logs `Non-zero metrics in the last 30s`
+>___Error:___
+>Apparently logs are transferred from Beats to Elasticsearch. However the Beats logs continuously show this message:
+>```ruby
+>INFO    [monitoring]    log/log.go:123  Non-zero metrics in the last 30s ...
+>```
+>___Solution:___
+>- It is a periodical metrics report by the Beats. If you would like to disable it or to see it less frequently you can change it in the configuration file:
+>   ```yaml
+>   # If enabled, filebeat periodically logs its internal metrics that have changed
+>   # in the last period. For each metric that changed, the delta from the value at
+>   # the beginning of the period is logged. Also, the total values for
+>   # all non-zero internal metrics are logged on shutdown. The default is true.
+>   logging.metrics.enabled: false
+>   
+>   # The period after which to log the internal metrics. The default is 30s.
+>   #logging.metrics.period: 30s
+>   ```  
+  
+  
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
