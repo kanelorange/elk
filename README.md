@@ -39,6 +39,9 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
   - Docker Engine v20.10.21
   - Docker Compose v2.13.0
   - OS/Arch: linux/amd64
+> ⚠️ Attention
+>
+> Some metricsets or modules in Metricbeat may not work on MacOS, because they are created to monitor Linux systems. The special filesystems /proc and /sys are only available if the host system is running Linux. Attempts to bind-mount these filesystems will fail on MacOS (or Windows).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
