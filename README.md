@@ -516,5 +516,5 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   xpack.monitoring.* settings will eventually go away in a future major version.
 >   ``` 
   
-  
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode  
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
