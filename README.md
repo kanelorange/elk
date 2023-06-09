@@ -93,7 +93,7 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
 ### Custom _ENVIRONMENT variables_ for personal interest
 Define your personal variables in `.env` file. These variables are used in the entire project. They will affect to Elastic Stack version, containers' names, users, passwords, JAVA,... 
 Here is an example with ELK Stack version 7.17.7:
-  ```
+  ```dockerfile
   ELK_VERSION=7.17.7
   ES_JAVA_OPTS="-Xmx256m -Xms256m"
   LS_JAVA_OPTS="-Xmx256m -Xms256m"
@@ -108,19 +108,19 @@ Here is an example with ELK Stack version 7.17.7:
 ### Preparing images with DOCKERFILE
 **1. Elasticsearch + Logstash + Kibana**
 - Create `Dockerfile` in `elk\elasticsearch_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM elasticsearch:${ELK_VERSION}
   ```
 - Create `Dockerfile` in `elk\logstash_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM logstash:${ELK_VERSION}
   ```
 - Create `Dockerfile` in `elk\kibana_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM kibana:${ELK_VERSION}
@@ -128,7 +128,7 @@ Here is an example with ELK Stack version 7.17.7:
 
 **2. Metricbeat (monitoring Docker Host)**
 - Create `Dockerfile` in `elk\metricbeat_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM elastic/metricbeat:${ELK_VERSION}
@@ -491,6 +491,30 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   # The period after which to log the internal metrics. The default is 30s.
 >   #logging.metrics.period: 30s
 >   ```  
+
+>### Beats create a “Standalone Cluster” in Kibana Monitoring
+>___Elastic.co Explaination:___
+>```console
+># In Beats version 7.2, we allowed Beats to ship their monitoring data directly to
+># a Monitoring Elasticsearch cluster (which might be separate from your Production
+># Elasticsearch cluster, where you send the log data being harvested by Beats).
+># The new monitoring.* settings introduced in 7.2 let you set the Monitoring cluster
+># for Beats.
+>
+># Now, if your output is elasticsearch, then we know which Elasticsearch cluster your
+># Beat is sending its logs data to. In that case the Monitoring UI can correctly associate
+># the Beat instance with that Elasticsearch cluster.
+>
+># However, if the output is something other than elasticsearch, we cannot know if the
+># logs data is ending up in an Elasticsearch cluster. So the Monitoring UI shows the
+># Beat instance in a "Standalone Cluster".
+>```
+>___Solution:___
+>   ```console
+>   As a temporary workaround, you can go back to using the deprecated xpack.monitoring.*
+>   settings (instead of the new monitoring.* ones). However, please note that the
+>   xpack.monitoring.* settings will eventually go away in a future major version.
+>   ``` 
   
   
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
