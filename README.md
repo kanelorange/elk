@@ -39,7 +39,7 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
   - Docker Engine v20.10.21
   - Docker Compose v2.13.0
   - OS/Arch: linux/amd64
-> ⚠️ Attention
+> ⚠️ Warning
 >
 > Some metricsets or modules in Metricbeat may not work on MacOS, because they are created to monitor Linux systems. The special filesystems /proc and /sys are only available if the host system is running Linux. Attempts to bind-mount these filesystems will fail on MacOS (or Windows).
 
@@ -62,15 +62,15 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    (Check the configuration:)
    kanel@Mac-Pro ~ % git config --global --list
    ```
-3. Clone the **elk** repository from GitHub
+3. Clone the `elk` repository from GitHub
    ```console
    kanel@Mac-Pro ~ % git clone https://github.com/kanelorange/elk.git
    ```
-4. Change to **elk** directory
+4. Change to `elk` directory
    ```console
    kanel@Mac-Pro ~ % cd elk
    ```
-5. Run **Docker Compose** command to build and run **ELK Containers**
+5. Run **Docker Compose** command to build up and run **ELK Containers**
    ```console
    kanel@Mac-Pro elk % sudo docker-compose up -d
    Password:
@@ -92,8 +92,9 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
 ## Usage
 
 ### Custom _ENVIRONMENT variables_ for personal interest
-Define your personal variables in `.env` file. These variables are used in the entire project. They will affect to Elastic Stack version, containers' names, users, passwords, JAVA,... 
-Here is an example with ELK Stack version 7.17.7:
+Define your personal variables in `.env` file. These variables are used in the entire project. They will make differences to Elastic Stack version, containers' names, users, passwords, JAVA, etc. 
+
+Here is an example with ELK Stack version `7.17.7`:
   ```dockerfile
   ELK_VERSION=7.17.7
   ES_JAVA_OPTS="-Xmx256m -Xms256m"
