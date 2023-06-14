@@ -515,6 +515,52 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   settings (instead of the new monitoring.* ones). However, please note that the
 >   xpack.monitoring.* settings will eventually go away in a future major version.
 >   ``` 
+
+>### How to fix `bootstrap check failure: memory locking requested`
+>___Error:___
+>```ruby
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: memory locking requested for elasticsearch process but memory is not locked
+>```
+><details>
+>  <summary><b><i>Error Logs:</i></b></summary>
+>
+>```ruby
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: memory locking requested for elasticsearch process but memory is not locked
+>cont_elastic           | ERROR: Elasticsearch did not exit normally - check the logs at /usr/share/elasticsearch/logs/kanel-elk-docker.log
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,230Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopping ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,243Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopped" }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,244Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closing ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,270Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closed" }
+>cont_elastic           | uncaught exception in thread [process reaper (pid 502)]
+>cont_elastic           | java.security.AccessControlException: access denied ("java.lang.RuntimePermission" "modifyThread")
+>cont_elastic           | 	at java.base/java.security.AccessControlContext.checkPermission(AccessControlContext.java:485)
+>cont_elastic           | 	at java.base/java.security.AccessController.checkPermission(AccessController.java:1068)
+>cont_elastic           | 	at java.base/java.lang.SecurityManager.checkPermission(SecurityManager.java:411)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkThreadAccess(SecureSM.java:160)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkAccess(SecureSM.java:120)
+>cont_elastic           | 	at java.base/java.lang.Thread.checkAccess(Thread.java:2360)
+>cont_elastic           | 	at java.base/java.lang.Thread.setDaemon(Thread.java:2308)
+>cont_elastic           | 	at java.base/java.lang.ProcessHandleImpl.lambda$static$0(ProcessHandleImpl.java:103)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.<init>(ThreadPoolExecutor.java:637)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:928)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.processWorkerExit(ThreadPoolExecutor.java:1021)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1158)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+>cont_elastic           | 	at java.base/java.lang.Thread.run(Thread.java:1589)
+>cont_elastic           | 	at java.base/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:186)
+>cont_elastic exited with code 78
+>```
+></details>
+>
+>___Solution:___
+  
+  
+  
+  
+  
+  
   
 https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode  
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
