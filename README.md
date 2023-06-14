@@ -76,11 +76,12 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    Password:
    ```
 6. Access to **Kibana Dashboard** via a web browser
+
    ___From Docker Host:___
    ```console
    http://localhost:5601
    ```
-   ___From other clients:___ access to Docker Host via IP address or hostname 
+   ___From other clients:___ access to Docker Host via its IP address or hostname 
    ```console
    http://docker-hostname:5601
    ```
