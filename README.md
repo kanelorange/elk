@@ -554,8 +554,36 @@ kanel@Mac-Pro elk % sudo docker compose down
 >```
 ></details>
 >
+>___Elastic.co Explaination:___
+>```java
+>Most operating systems try to use as much memory as possible for file system caches and eagerly swap out unused application memory. This can result in parts of the JVM heap or even its executable pages being swapped out to disk.
+>
+>Swapping is very bad for performance, for node stability, and should be avoided at all costs. It can cause garbage collections to last for minutes instead of milliseconds and can cause nodes to respond slowly or even to disconnect from the cluster. In a resilient distributed system, it’s more effective to let the operating system kill the node.
+>
+>There are three approaches to disabling swapping. The preferred option is to completely disable swap. If this is not an option, whether or not to prefer minimizing swappiness versus memory locking is dependent on your environment.
+>
+>Disable all swap files
+>
+>Usually Elasticsearch is the only service running on a box, and its memory usage is controlled by the JVM options. There should be no need to have swap enabled.
+>sudo swapoff -a
+>
+>On Linux systems, you can disable swap temporarily by running:
+>  
+>  
+>```
 >___Solution:___
-  
+>- Disable swapping:
+>   ```java
+>   Swapping needs to be disabled for performance and node stability. For information about ways to do this,
+>   see https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html
+>   ```  
+>- Define the memlock:
+>   ```js
+>   If you opt for the `bootstrap.memory_lock: true` approach, you also need to define the memlock: true
+>   ulimit in the Docker Daemon, or explicitly set for the container as shown in the sample compose file.
+>   When using docker run, you can specify:
+>   -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1
+>   ```    
   
   
   
