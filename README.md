@@ -590,9 +590,9 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   ```  
 >- Define the memlock:
 >   ```js
->   If you opt for the `bootstrap.memory_lock: true` approach, you also need to define the memlock: true
->   ulimit in the Docker Daemon, or explicitly set for the container as shown in the sample compose file.
->   When using docker run, you can specify:
+>   If you opt for the `bootstrap.memory_lock: true` approach, you also need to define the
+>   `memlock: true` ulimit in the Docker Daemon, or explicitly set for the container as shown
+>   in the docker-compose file. When using docker run, you can specify:
 >   -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1
 >   ```    
 
