@@ -12,7 +12,7 @@ cluster.name: "kanel-elk-docker"
 # from configuring them manually. You can tie this node to a specific name:
 # Use a descriptive name for the node:
 #
-node.name: "ELK Master"
+node.name: "ELK-Master"
 #
 # Add custom attributes to the node:
 #
@@ -76,18 +76,21 @@ network.host: 0.0.0.0
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
 #discovery.seed_hosts: ["host1", "host2"]
+discovery.seed_hosts: ["ELK-Master"]
 #
 # Bootstrap the cluster using an initial set of master-eligible nodes:
 #
 #cluster.initial_master_nodes: ["node-1", "node-2"]
+
 #
-discovery.type: single-node
+#discovery.type: single-node
 #
 # ---------------------------------- Security ----------------------------------
 # Enable all X-pack security features by 'true' and disable all by 'false'.
 #
 xpack.security.enabled: true
 #
+xpack.security.transport.ssl.enabled: true
 # Set this configuration to disable paid features, the self-generated license
 # gives access only to all the featues of an X-pack for 30 days.
 #

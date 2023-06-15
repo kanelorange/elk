@@ -121,7 +121,8 @@ http.host: 0.0.0.0
 #
 # ------------ X-Pack Settings (not applicable for OSS build)--------------
 #
-# X-Pack Monitoring
+# X-Pack Monitoring for Logstash self-monitoring.
+# X-Pack Monitoring should be disabled if Metricbeat enables Logstash module.
 xpack.monitoring.enabled: true
 xpack.monitoring.elasticsearch.hosts: ["http://${HOSTNAME_ELASTIC}:9200"]
 xpack.monitoring.elasticsearch.username: "${ELASTIC_USERNAME}"

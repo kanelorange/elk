@@ -132,10 +132,11 @@ metricbeat.modules:
 #------------------------------- Logstash Module -------------------------------
 - module: logstash
   metricsets: ["node", "node_stats"]
-  enabled: true
+  enabled: false
   period: 10s
   hosts: ["${HOSTNAME_LOGSTASH}:9600"]
-
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
   # Set to true to send data collected by module to X-Pack
   # Monitoring instead of metricbeat-* indices.
   xpack.enabled: true
@@ -324,7 +325,7 @@ setup.kibana:
 # reporting is disabled by default.
 
 # Set to true to enable the monitoring reporter.
-xpack.monitoring.enabled: true
+xpack.monitoring.enabled: false
 
 # Uncomment to send the metrics to Elasticsearch. Most settings from the
 # Elasticsearch output are accepted here as well.
@@ -333,7 +334,7 @@ xpack.monitoring.enabled: true
 # output configuration, so if you have the Elasticsearch output configured such
 # that it is pointing to your Elasticsearch monitoring cluster, you can simply
 # uncomment the following line.
-xpack.monitoring.elasticsearch:
+#xpack.monitoring.elasticsearch:
 
 # =============================== HTTP Endpoint ================================
 

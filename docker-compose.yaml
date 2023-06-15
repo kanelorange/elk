@@ -9,7 +9,7 @@ services:
     # Pull image via docker-compose file
     #image: elasticsearch:${ELK_VERSION}
     #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./elasticsearch_data
       dockerfile: Dockerfile
@@ -41,6 +41,14 @@ services:
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    ulimits:
+      # Set memlock to elasticsearch processes
+      memlock:
+        soft: -1
+        hard: -1
+      #nofile:
+      #  soft: 65536
+      #  hard: 65536
     healthcheck:
       test: ["CMD-SHELL", "curl --fail ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}@${HOSTNAME_ELASTIC}:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -58,7 +66,7 @@ services:
     # Pull image via docker-compose file
     #image: logstash:${ELK_VERSION}
     #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./logstash_data
       dockerfile: Dockerfile
@@ -107,7 +115,7 @@ services:
     # Pull image via docker-compose file
     #image: kibana:${ELK_VERSION}
     #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./kibana_data
       dockerfile: Dockerfile
@@ -157,7 +165,7 @@ services:
     # Pull image via docker-compose file
     #image: elastic/metricbeat:${ELK_VERSION}
     #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./metricbeat_stack
       dockerfile: Dockerfile
@@ -180,7 +188,7 @@ services:
         read_only: true
       # Mount docker-host-running directory to container
       - /var/run/docker.sock:/var/run/docker.sock
-    user: root
+    #user: root
     environment:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
@@ -217,7 +225,7 @@ services:
     # Pull image via docker-compose file
     #image: elastic/metricbeat:${ELK_VERSION}
     #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./metricbeat_host
       dockerfile: Dockerfile
@@ -242,7 +250,7 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /run/systemd/private:/run/systemd/private:ro
       - /var/run/docker.sock:/var/run/docker.sock
-    user: root
+    #user: root
     environment:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
