@@ -575,15 +575,18 @@ kanel@Mac-Pro elk % sudo docker compose down
 ># Usually Elasticsearch is the only service running on a box, and its memory usage is controlled
 ># by the JVM options. There should be no need to have swap enabled.
 >
-># On Linux systems, you can disable swap temporarily by running:
->sudo swapoff -a
->  
+># On Linux systems, you can disable swap temporarily by running: `sudo swapoff -a`
+>
+># This doesn’t require a restart of Elasticsearch.
+># To disable it permanently, you will need to edit the `/etc/fstab` file and comment out any lines
+># that contain the word `swap`.
 >```
 >___Solution:___
 >- Disable swapping:
 >   ```java
->   Swapping needs to be disabled for performance and node stability. For information about ways to do this,
->   see https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html
+>   Swapping needs to be disabled for performance and node stability.
+>   For information about ways to do this, see:
+>   'https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html'
 >   ```  
 >- Define the memlock:
 >   ```js
@@ -639,6 +642,8 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   xpack.security.transport.ssl.enabled: true
 >   ```
   
-  
-https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-cli-run-prod-mode  
+<!-- REFERENCES -->
+## References  
+[Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)  
+[Install Kibana with Docker](https://www.elastic.co/guide/en/kibana/current/docker.html)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
