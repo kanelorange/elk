@@ -363,32 +363,32 @@ How you set `vm.max_map_count` depends on your platform.
 
 **Linux**  
 To view the current value for the `vm.max_map_count` setting, run:  
-```java
-grep vm.max_map_count /etc/sysctl.conf
+```console
+root@centOS ~ # grep vm.max_map_count /etc/sysctl.conf
 vm.max_map_count=262144
 ```
 To apply the setting on a live system, run:  
-```java
-sysctl -w vm.max_map_count=262144
+```console
+root@centOS ~ # sysctl -w vm.max_map_count=262144
 ```
 To permanently change the value for the `vm.max_map_count` setting, update the value in `/etc/sysctl.conf`.  
 
 **macOS with Docker for Mac**  
 The `vm.max_map_count` setting must be set within the xhyve virtual machine:  
 - From the command line, run:
-```java
-screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+```console
+kanel@Mac-Pro ~ % screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
 ```
 - Press enter and use sysctl to configure `vm.max_map_count`:
-```java
-sysctl -w vm.max_map_count=262144
+```console
+kanel@Mac-Pro ~ % sysctl -w vm.max_map_count=262144
 ```
 - To exit the `screen` session, type `Ctrl a d`.
 
 **Windows and macOS with Docker Desktop**  
 The `vm.max_map_count` setting must be set via `docker-machine`:
 - From the command line, run:
-```java
+```console
 docker-machine ssh
 sudo sysctl -w vm.max_map_count=262144
 ```
@@ -655,6 +655,26 @@ kanel@Mac-Pro elk % sudo docker compose down
 >   -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1
 >   ```    
 
+
+>### How to fix `initial heap size [...] not equal to maximum heap size [...]`
+>___Error:___
+>```ruby  
+>Exception in thread "main" java.lang.RuntimeException: bootstrap checks failed
+>initial heap size [268435456] not equal to maximum heap size [2147483648]; this can cause resize pauses and prevents mlockall from locking the entire heap
+>max virtual memory areas vm.max_map_count [65530] likely too low, increase to at least [262144]
+>```  
+>___Solution:___
+>- The `vm_map_max_count` setting should be set permanently in `/etc/sysctl.conf`:
+>   ```console
+>   root@centOS ~ # grep vm.max_map_count /etc/sysctl.conf
+>   vm.max_map_count=262144
+>   ```    
+>- To apply the setting on a live system, run as `root`:
+>   ```console
+>   root@centOS ~ # sysctl -w vm.max_map_count=262144
+>   ```   
+  
+  
   
   
 >### How to fix `bootstrap check failure: Transport SSL must be enabled...`
