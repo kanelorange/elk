@@ -347,10 +347,52 @@ Here is an example with ELK Stack version `7.17.7`:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Using the Docker images in production
+
+The following requirements and recommendations apply when running Elasticsearch in Docker in production.  
+
+**Set `vm.max_map_count` to at least `262144`**  
+The `vm.max_map_count` kernel setting must be set to at least `262144` for production use.  
+
+How you set `vm.max_map_count` depends on your platform.  
+
+**Linux**  
+To view the current value for the `vm.max_map_count` setting, run:  
+```java
+grep vm.max_map_count /etc/sysctl.conf
+vm.max_map_count=262144
+```
+To apply the setting on a live system, run:  
+```java
+sysctl -w vm.max_map_count=262144
+```
+To permanently change the value for the `vm.max_map_count` setting, update the value in `/etc/sysctl.conf`.  
+
+**macOS with Docker for Mac**  
+The `vm.max_map_count` setting must be set within the xhyve virtual machine:  
+- From the command line, run:
+```java
+screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+```
+- Press enter and use sysctl to configure `vm.max_map_count`:
+```java
+sysctl -w vm.max_map_count=262144
+```
+- To exit the `screen` session, type `Ctrl a d`.
+
+**Windows and macOS with Docker Desktop**  
+The `vm.max_map_count` setting must be set via `docker-machine`:
+- From the command line, run:
+```java
+docker-machine ssh
+sudo sysctl -w vm.max_map_count=262144
+```
+
 ### Run ELK Stack containers with DOCKER COMPOSE
 ```console
 kanel@Mac-Pro elk % sudo docker compose up -d
 ```
+
 ### Stop and remove containers
 ```console
 kanel@Mac-Pro elk % sudo docker compose down
