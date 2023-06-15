@@ -116,7 +116,7 @@ Here is an example with ELK Stack version `7.17.7`:
   HOSTNAME_ELASTIC="cont-elastic"
   HOSTNAME_LOGSTASH="cont-logstash"
   HOSTNAME_KIBANA="cont-kibana"
-  HOSTNAME_METRICBEAT="cont-metric"
+  HOSTNAME_METRICBEAT="cont-metricbeat-cluster"
   ELASTIC_USERNAME="elastic"
   ELASTIC_PASSWORD="kanelelk"
   ```
@@ -142,19 +142,17 @@ Here is an example with ELK Stack version `7.17.7`:
   FROM kibana:${ELK_VERSION}
   ```
 
-**2. Metricbeat (monitoring Docker Host)**
+**2. Metricbeat (monitoring Elastic Stack)**
 - Create `Dockerfile` in `elk\metricbeat_data` directory:
   ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM elastic/metricbeat:${ELK_VERSION}
-  # Change file permission for docker module monitoring
-  USER root
-
-  USER metricbeat
+  #USER root
   ```
-- Note that `/run/docker.sock` file is created after container is created successfull. You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]
-- Note that this image should grant permission to `docker.sock` file for _docker module_ monitoring.
+> **Note**  
+> Note that `/run/docker.sock` file is created after Metricbeat container is created successfull. You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]. The `docker.sock` file is used for _docker module_ monitoring.  
+> User `root` can be defined in `Dockerfile` or `docker-compose.yaml` file.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -164,10 +162,7 @@ Here is an example with ELK Stack version `7.17.7`:
   elasticsearch:
     container_name: cont_elastic
     #-----------------------------------
-    # Pull image via docker-compose file
-    #image: elasticsearch:${ELK_VERSION}
-    #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./elasticsearch_data
       dockerfile: Dockerfile
@@ -188,7 +183,7 @@ Here is an example with ELK Stack version `7.17.7`:
         source: ./elasticsearch_data/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      # Mount ALL elasticsearch instance data directory to container
+      # Mount Elastic Stack Instance Data directory to container
       - type: bind
         source: ./elasticsearch_data/es_data
         target: /usr/share/elasticsearch/data
@@ -197,9 +192,16 @@ Here is an example with ELK Stack version `7.17.7`:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
-      HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    ulimits:
+      # Set memlock to limit elasticsearch memory
+      memlock:
+        soft: -1
+        hard: -1
+      #nofile:
+      #  soft: 65536
+      #  hard: 65536
     healthcheck:
       test: ["CMD-SHELL", "curl --fail ${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}@${HOSTNAME_ELASTIC}:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -215,10 +217,7 @@ Here is an example with ELK Stack version `7.17.7`:
         condition: service_healthy
     container_name: cont_logstash
     #-----------------------------------
-    # Pull image via docker-compose file
-    #image: logstash:${ELK_VERSION}
-    #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./logstash_data
       dockerfile: Dockerfile
@@ -234,10 +233,12 @@ Here is an example with ELK Stack version `7.17.7`:
       - "5044:5044"
       - "9600:9600"
     volumes:
+      # Mount logstash configuration file to container
       - type: bind
         source: ./logstash_data/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
+      # Mount logstash outputs configuration file to container
       - type: bind
         source: ./logstash_data/beats.conf
         target: /usr/share/logstash/beats.conf
@@ -254,7 +255,7 @@ Here is an example with ELK Stack version `7.17.7`:
 **3. Kibana Container**
   ```yaml
   kibana:
-  # Wait until elasticsearch and logstash has started  
+    # Wait until elasticsearch and logstash have started  
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -262,10 +263,7 @@ Here is an example with ELK Stack version `7.17.7`:
         condition: service_started
     container_name: cont_kibana
     #-----------------------------------
-    # Pull image via docker-compose file
-    #image: kibana:${ELK_VERSION}
-    #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
       context: ./kibana_data
       dockerfile: Dockerfile
@@ -280,6 +278,7 @@ Here is an example with ELK Stack version `7.17.7`:
     ports:
       - "5601:5601"
     volumes:
+      # Mount kibana configuration file to container
       - type: bind
         source: ./kibana_data/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
@@ -300,8 +299,8 @@ Here is an example with ELK Stack version `7.17.7`:
   ```
 **4. Metricbeat Container**
   ```yaml
-  metricbeat:
-  # Wait until < E-L-K > has started  
+  metricbeat_cluster:
+    # Wait until < E-L-K > has started
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -309,34 +308,36 @@ Here is an example with ELK Stack version `7.17.7`:
         condition: service_started
       kibana:
         condition: service_healthy
-    container_name: cont_metricbeat
+    container_name: cont_metricbeat_cluster
     #-----------------------------------
-    # Pull image via docker-compose file
-    #image: elastic/metricbeat:${ELK_VERSION}
-    #-----------------------------------
-    # Build image via Dockerfile
+    # Build up image via Dockerfile and tag it
     build:
-      context: ./metricbeat_data
+      context: ./metricbeat_cluster
       dockerfile: Dockerfile
       tags:
-        - "kanelorange/metricbeat:${ELK_VERSION}"
+        - "kanelorange/metricbeat-cluster:${ELK_VERSION}"
       args:
         ELK_VERSION: ${ELK_VERSION}
     #-----------------------------------
     hostname: ${HOSTNAME_METRICBEAT}
     networks:
       - localnet
+    ports:
+      - "5066:5066"
     volumes:
       # Mount metricbeat configuration file to container
       - type: bind
-        source: ./metricbeat_data/metricbeat.yml
-        target: /usr/share/metricbeat/config/metricbeat.yml
+        source: ./metricbeat_cluster/metricbeat.yml
+        #target: /usr/share/metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
         read_only: true
-      # Mount docker-host-monitoring directories to container
+      # Mount docker-host-running directory to container
       - /:/hostfs:ro
       - /proc:/hostfs/proc:ro
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/systemd/private:/run/systemd/private:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root
     environment:
       HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
@@ -344,10 +345,6 @@ Here is an example with ELK Stack version `7.17.7`:
       HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
-    #-----------------------------------
-    # Run metricbeat setup with mounted configuration file
-    command:
-      'metricbeat -e -c /usr/share/metricbeat/config/metricbeat.yml'
   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
