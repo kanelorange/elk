@@ -1,4 +1,4 @@
-# How to deploy _ELK_ on Docker
+# How to Deploy Elastic Stack _(ELK)_ on Docker Engine
 <a name="readme-top"></a>
 <!-- ABOUT -->
 ## About
@@ -9,20 +9,34 @@ An Elastic Stack [Elasticsearch - Logstash - Kibana - Beats] running on Docker w
 
 The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic Stack**, runs on various setups and operating systems. A simple way to try out, install and test the ELK stack is to run it on Docker.
 
+![image](https://github.com/kanelorange/elk/assets/21073376/1c882f34-67cb-4659-aacb-d316e4189eb0)
+
+With the introduction of Metricbeat as the agent for collecting and shipping monitoring data, the need to route monitoring data through the production cluster has been removed. Monitoring data can now be collected by an independent, lightweight monitoring agent and sent directly to the monitoring cluster.  
+
+Using Metricbeat for monitoring collection means less work for the production cluster and more resilience for your monitoring setup.
 <!-- GETTING STARTED -->
 ## Getting Started
 
 ### Prerequisites
 
-1. Connect to the Internet for project resources. 
-2. Docker is installed and configured.
-3. Docker Compose is installed and configured (recommended).
-4. Git is installed to clone the ELK Docker repository.
+1. Docker Host is connected to the Internet for downloading project components. 
+2. Docker Engine and Docker Compose are installed and configured (recommended).
+3. Git is installed to clone the ELK Docker repository (optional).
+4. Learn more about Elastic Stack at https://www.elastic.co/elastic-stack/.
 5. Access to a web browser to view the Kibana dashboard.
 6. Command-line interface/terminal access with sudo privileges.
 
 ### Successful Tested Environment
+___Chosen variables:___ These variables can be edited in `.env` file
+- ELK Stack demo version: `7.17.7`
+- Username: `elastic`
+- Password: `kanelelk`
 
+___Best practice:___ CentOS 7 Server  
+Learn how to install Docker Engine on CentOS at https://docs.docker.com/engine/install/centos/.
+
+___Other environment:___ MacOS X  
+Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/install/mac-install/.  
 - Docker Host:
   - macOS Catalina 10.15.7
 - Docker Server:
@@ -30,34 +44,60 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
   - Docker Engine v20.10.21
   - Docker Compose v2.13.0
   - OS/Arch: linux/amd64
+> **Warning**  
+> Some metricsets or modules in Metricbeat may not work on MacOS, because they are created to monitor Linux systems. The special filesystems /proc and /sys are only available if the host system is running Linux. Attempts to bind-mount these filesystems will fail on MacOS (or Windows).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Installation
+### Installation - TL;DR
 
 1. Open Visual Code Console or System Terminal or any Coding Editor
-2. (On macOS) Link host `docker.sock` to container `docker.sock`
+2. Sign in to GitHub
    ```console
-   kanel@Mac-Pro ~ % sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
-   Password:
-   ln: /var/run/docker.sock: File exists
+   (Syntax:)
+   https://<username>:<password>@github.com/<username>/<repository.git>
+   
+   (Add your user name:)
+   kanel@Mac-Pro ~ % git config --global user.name "your_username"
+   
+   (Add your email address:)
+   kanel@Mac-Pro ~ % git config --global user.email "your_email_address@example.com"
+   
+   (Check the configuration:)
+   kanel@Mac-Pro ~ % git config --global --list
    ```
-3. Clone the **elk** repository from GitHub
+3. Clone the `elk` repository from GitHub
    ```console
    kanel@Mac-Pro ~ % git clone https://github.com/kanelorange/elk.git
    ```
-4. Change to **elk** directory
+4. Change to `elk` directory, modify the `.env` file and enter values for environment variables
    ```console
    kanel@Mac-Pro ~ % cd elk
    ```
-5. Run **Docker Compose** command to build and run **ELK Containers**
+5. Run **Docker Compose** command to build up and start the **ELK Containers**
    ```console
    kanel@Mac-Pro elk % sudo docker-compose up -d
    Password:
    ```
-6. Access to **Kibana Dashboard** via a web browser
+6. When the deployment has started, open a browser and access to **Kibana Dashboard**, where you can load sample data and interact with your cluster  
+   ___From Docker Host:___
    ```console
    http://localhost:5601
+   ```
+   ___From other clients:___ access to Docker Host via its IP address or hostname 
+   ```console
+   http://docker-hostname:5601
+   ```
+
+### Stop and remove the deployment
+
+1. To stop the cluster, run `docker-compose down`. The data in the Docker volumes is preserved and loaded when you restart the cluster with `docker-compose up`.
+   ```console
+   kanel@Mac-Pro elk % sudo docker-compose down
+   ```
+2. To delete the network, containers, and volumes when you stop the cluster, specify the `-v` option:
+   ```console
+   kanel@Mac-Pro elk % sudo docker-compose down -v
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -66,10 +106,11 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
 ## Usage
 
 ### Custom _ENVIRONMENT variables_ for personal interest
-Define your personal variables in `.env` file. These variables are used in the entire project. They will affect to Elastic Stack version, containers' names, users, passwords, JAVA,... 
-Here is an example with ELK Stack version 7.17.7:
-  ```
-  ELK_VERSION=7.17.7
+Define your personal variables in `.env` file. These variables are used in the entire project. They will make differences to Elastic Stack version, containers' names, users, passwords, JAVA, etc. 
+
+Here is an example with ELK Stack version `7.17.7`:
+  ```dockerfile
+  ELK_VERSION="7.17.7"
   ES_JAVA_OPTS="-Xmx256m -Xms256m"
   LS_JAVA_OPTS="-Xmx256m -Xms256m"
   HOSTNAME_ELASTIC="cont-elastic"
@@ -83,19 +124,19 @@ Here is an example with ELK Stack version 7.17.7:
 ### Preparing images with DOCKERFILE
 **1. Elasticsearch + Logstash + Kibana**
 - Create `Dockerfile` in `elk\elasticsearch_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM elasticsearch:${ELK_VERSION}
   ```
 - Create `Dockerfile` in `elk\logstash_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM logstash:${ELK_VERSION}
   ```
 - Create `Dockerfile` in `elk\kibana_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM kibana:${ELK_VERSION}
@@ -103,7 +144,7 @@ Here is an example with ELK Stack version 7.17.7:
 
 **2. Metricbeat (monitoring Docker Host)**
 - Create `Dockerfile` in `elk\metricbeat_data` directory:
-  ```
+  ```dockerfile
   ARG ELK_VERSION
   # Get image from Docker Hub
   FROM elastic/metricbeat:${ELK_VERSION}
@@ -311,10 +352,52 @@ Here is an example with ELK Stack version 7.17.7:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Using the Docker images in production
+
+The following requirements and recommendations apply when running Elasticsearch in Docker in production.  
+
+**Set `vm.max_map_count` to at least `262144`**  
+The `vm.max_map_count` kernel setting must be set to at least `262144` for production use.  
+
+How you set `vm.max_map_count` depends on your platform.  
+
+**Linux**  
+To view the current value for the `vm.max_map_count` setting, run:  
+```java
+grep vm.max_map_count /etc/sysctl.conf
+vm.max_map_count=262144
+```
+To apply the setting on a live system, run:  
+```java
+sysctl -w vm.max_map_count=262144
+```
+To permanently change the value for the `vm.max_map_count` setting, update the value in `/etc/sysctl.conf`.  
+
+**macOS with Docker for Mac**  
+The `vm.max_map_count` setting must be set within the xhyve virtual machine:  
+- From the command line, run:
+```java
+screen ~/Library/Containers/com.docker.docker/Data/vms/0/tty
+```
+- Press enter and use sysctl to configure `vm.max_map_count`:
+```java
+sysctl -w vm.max_map_count=262144
+```
+- To exit the `screen` session, type `Ctrl a d`.
+
+**Windows and macOS with Docker Desktop**  
+The `vm.max_map_count` setting must be set via `docker-machine`:
+- From the command line, run:
+```java
+docker-machine ssh
+sudo sysctl -w vm.max_map_count=262144
+```
+
 ### Run ELK Stack containers with DOCKER COMPOSE
 ```console
 kanel@Mac-Pro elk % sudo docker compose up -d
 ```
+
 ### Stop and remove containers
 ```console
 kanel@Mac-Pro elk % sudo docker compose down
@@ -405,13 +488,13 @@ kanel@Mac-Pro elk % sudo docker compose down
 >
 >___Solution:___
 >- Change the permissions of the host directory that mapped to `/usr/share/elasticsearch/data`.
->```console
->kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
->```
+>   ```console
+>   kanel@Mac-Pro elk % sudo chown -R 1000:1000 [directory]
+>   ```
 >- For example in this instance, that directory is `elk/elasticsearch_data/es_data`.
->```console
->kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
->```
+>   ```console
+>   kanel@Mac-Pro elk % sudo chown -R 1000:1000 ./elasticsearch_data/es_data
+>   ```
 
 >### How to fix Metricbeat docker containers failed to start
 >___Error:___
@@ -420,11 +503,204 @@ kanel@Mac-Pro elk % sudo docker compose down
 >```
 >___Solution:___
 >- Start Metricbeat containers or compose Elastic Stack again.
+>   ```console
+>   kanel@Mac-Pro elk % sudo docker start cont_metricbeat_stack cont_metricbeat_host
+>   (or/and)
+>   kanel@Mac-Pro elk % sudo docker-compose up -d
+>   ```
+
+>### How to check Docker Engine is running
+>___Error:___
 >```console
->kanel@Mac-Pro elk % sudo docker start cont_metricbeat_stack cont_metricbeat_host
->(or/and)
->kanel@Mac-Pro elk % sudo docker-compose up -d
+>kanel@Mac-Pro elk % docker ps
+>Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
 >```
+>___Solution:___
+>- Run Docker Engine or start Docker Desktop
+>   ```console
+>   kanel@Mac-Pro elk % sudo systemctl start docker
+>   Password:
+>   ```
+  
+>### How to read `docker.sock` on MacOS
+>___Solution:___
+>- Link host `docker.sock` to container `docker.sock`
+>   ```console
+>   kanel@Mac-Pro ~ % sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
+>   Password:
+>   ln: /var/run/docker.sock: File exists
+>   ```
 
+>### How to fix Beats' logs `Non-zero metrics in the last 30s`
+>___Error:___
+>Apparently logs are transferred from Beats to Elasticsearch. However the Beats logs continuously show this message:
+>```ruby
+>INFO    [monitoring]    log/log.go:123  Non-zero metrics in the last 30s ...
+>```
+>___Solution:___
+>- It is a periodical metrics report by the Beats. If you would like to disable it or to see it less frequently you can change it in the configuration file:
+>   ```yaml
+>   # If enabled, filebeat periodically logs its internal metrics that have changed
+>   # in the last period. For each metric that changed, the delta from the value at
+>   # the beginning of the period is logged. Also, the total values for
+>   # all non-zero internal metrics are logged on shutdown. The default is true.
+>   logging.metrics.enabled: false
+>   
+>   # The period after which to log the internal metrics. The default is 30s.
+>   #logging.metrics.period: 30s
+>   ```  
 
+>### Beats create a “Standalone Cluster” in Kibana Monitoring
+>___Elastic.co Explaination:___
+>```console
+># In Beats version 7.2, we allowed Beats to ship their monitoring data directly to
+># a Monitoring Elasticsearch cluster (which might be separate from your Production
+># Elasticsearch cluster, where you send the log data being harvested by Beats).
+># The new monitoring.* settings introduced in 7.2 let you set the Monitoring cluster
+># for Beats.
+>
+># Now, if your output is elasticsearch, then we know which Elasticsearch cluster your
+># Beat is sending its logs data to. In that case the Monitoring UI can correctly associate
+># the Beat instance with that Elasticsearch cluster.
+>
+># However, if the output is something other than elasticsearch, we cannot know if the
+># logs data is ending up in an Elasticsearch cluster. So the Monitoring UI shows the
+># Beat instance in a "Standalone Cluster".
+>```
+>___Solution:___
+>   ```console
+>   As a temporary workaround, you can go back to using the deprecated xpack.monitoring.*
+>   settings (instead of the new monitoring.* ones). However, please note that the
+>   xpack.monitoring.* settings will eventually go away in a future major version.
+>   ``` 
+
+>### How to fix `bootstrap check failure: memory locking requested...`
+>___Error:___
+>```ruby
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: memory locking requested for elasticsearch process but memory is not locked
+>```
+><details>
+>  <summary><b><i>Error Logs:</i></b></summary>
+>
+>```ruby
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: memory locking requested for elasticsearch process but memory is not locked
+>cont_elastic           | ERROR: Elasticsearch did not exit normally - check the logs at /usr/share/elasticsearch/logs/kanel-elk-docker.log
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,230Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopping ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,243Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopped" }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,244Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closing ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T07:03:14,270Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closed" }
+>cont_elastic           | uncaught exception in thread [process reaper (pid 502)]
+>cont_elastic           | java.security.AccessControlException: access denied ("java.lang.RuntimePermission" "modifyThread")
+>cont_elastic           | 	at java.base/java.security.AccessControlContext.checkPermission(AccessControlContext.java:485)
+>cont_elastic           | 	at java.base/java.security.AccessController.checkPermission(AccessController.java:1068)
+>cont_elastic           | 	at java.base/java.lang.SecurityManager.checkPermission(SecurityManager.java:411)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkThreadAccess(SecureSM.java:160)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkAccess(SecureSM.java:120)
+>cont_elastic           | 	at java.base/java.lang.Thread.checkAccess(Thread.java:2360)
+>cont_elastic           | 	at java.base/java.lang.Thread.setDaemon(Thread.java:2308)
+>cont_elastic           | 	at java.base/java.lang.ProcessHandleImpl.lambda$static$0(ProcessHandleImpl.java:103)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.<init>(ThreadPoolExecutor.java:637)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:928)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.processWorkerExit(ThreadPoolExecutor.java:1021)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1158)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+>cont_elastic           | 	at java.base/java.lang.Thread.run(Thread.java:1589)
+>cont_elastic           | 	at java.base/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:186)
+>cont_elastic exited with code 78
+>```
+></details>
+>
+>___Elastic.co Explaination:___
+>```js
+># Most operating systems try to use as much memory as possible for file system caches and
+># eagerly swap out unused application memory. This can result in parts of the JVM heap or
+># even its executable pages being swapped out to disk.
+>
+># Swapping is very bad for performance, for node stability, and should be avoided at all costs.
+># It can cause garbage collections to last for minutes instead of milliseconds and can cause
+># nodes to respond slowly or even to disconnect from the cluster. In a resilient distributed
+># system, it’s more effective to let the operating system kill the node.
+>
+># There are three approaches to disabling swapping. The preferred option is to completely
+># disable swap. If this is not an option, whether or not to prefer minimizing swappiness
+># versus memory locking is dependent on your environment.
+>
+># Disable all swap files:
+>
+># Usually Elasticsearch is the only service running on a box, and its memory usage is controlled
+># by the JVM options. There should be no need to have swap enabled.
+>
+># On Linux systems, you can disable swap temporarily by running: `sudo swapoff -a`
+>
+># This doesn’t require a restart of Elasticsearch.
+># To disable it permanently, you will need to edit the `/etc/fstab` file and comment out any lines
+># that contain the word `swap`.
+>```
+>___Solution:___
+>- Disable swapping:
+>   ```java
+>   Swapping needs to be disabled for performance and node stability.
+>   For information about ways to do this, see [Elasticsearch important memory configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html).
+>   ```  
+>- Define the memlock:
+>   ```js
+>   If you opt for the `bootstrap.memory_lock: true` approach, you also need to define the
+>   `memlock: true` ulimit in the Docker Daemon, or explicitly set for the container as shown
+>   in the docker-compose file. When using docker run, you can specify:
+>
+>   -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1
+>   ```    
+
+  
+  
+>### How to fix `bootstrap check failure: Transport SSL must be enabled...`
+>___Error:___
+>```ruby
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: Transport SSL must be enabled if security is enabled on a [basic] license. Please set [xpack.security.transport.ssl.enabled] to [true] or disable security by setting [xpack.security.enabled] to [false]
+>```
+><details>
+>  <summary><b><i>Error Logs:</i></b></summary>
+>  
+>```ruby  
+>cont_elastic           | ERROR: [1] bootstrap checks failed. You must address the points described in the following [1] lines before starting Elasticsearch.
+>cont_elastic           | bootstrap check failure [1] of [1]: Transport SSL must be enabled if security is enabled on a [basic] license. Please set [xpack.security.transport.ssl.enabled] to [true] or disable security by setting [xpack.security.enabled] to [false]
+>cont_elastic           | ERROR: Elasticsearch did not exit normally - check the logs at /usr/share/elasticsearch/logs/kanel-elk-docker.log
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T08:06:15,521Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopping ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T08:06:15,539Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "stopped" }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T08:06:15,539Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closing ..." }
+>cont_elastic           | {"type": "server", "timestamp": "2023-06-14T08:06:15,555Z", "level": "INFO", "component": "o.e.n.Node", "cluster.name": "kanel-elk-docker", "node.name": "ELK-Master", "message": "closed" }
+>cont_elastic           | uncaught exception in thread [process reaper (pid 502)]
+>cont_elastic           | java.security.AccessControlException: access denied ("java.lang.RuntimePermission" "modifyThread")
+>cont_elastic           | 	at java.base/java.security.AccessControlContext.checkPermission(AccessControlContext.java:485)
+>cont_elastic           | 	at java.base/java.security.AccessController.checkPermission(AccessController.java:1068)
+>cont_elastic           | 	at java.base/java.lang.SecurityManager.checkPermission(SecurityManager.java:411)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkThreadAccess(SecureSM.java:160)
+>cont_elastic           | 	at org.elasticsearch.secure_sm.SecureSM.checkAccess(SecureSM.java:120)
+>cont_elastic           | 	at java.base/java.lang.Thread.checkAccess(Thread.java:2360)
+>cont_elastic           | 	at java.base/java.lang.Thread.setDaemon(Thread.java:2308)
+>cont_elastic           | 	at java.base/java.lang.ProcessHandleImpl.lambda$static$0(ProcessHandleImpl.java:103)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.<init>(ThreadPoolExecutor.java:637)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:928)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.processWorkerExit(ThreadPoolExecutor.java:1021)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1158)
+>cont_elastic           | 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+>cont_elastic           | 	at java.base/java.lang.Thread.run(Thread.java:1589)
+>cont_elastic           | 	at java.base/jdk.internal.misc.InnocuousThread.run(InnocuousThread.java:186)
+>cont_elastic exited with code 78
+>```  
+></details>  
+>  
+>___Solution:___
+>- Set the configuration in `elasticsearch.yml` file:
+>   ```yaml
+>   xpack.security.transport.ssl.enabled: true
+>   ```
+  
+<!-- REFERENCES -->
+## References  
+[Install Elasticsearch with Docker](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html)  
+[Install Kibana with Docker](https://www.elastic.co/guide/en/kibana/current/docker.html)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
