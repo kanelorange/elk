@@ -65,17 +65,16 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    ```console
    kanel@Mac-Pro ~ % git clone https://github.com/kanelorange/elk.git
    ```
-4. Change to `elk` directory
+4. Change to `elk` directory, modify the `.env` file and enter values for environment variables
    ```console
    kanel@Mac-Pro ~ % cd elk
    ```
-5. Run **Docker Compose** command to build up and run **ELK Containers**
+5. Run **Docker Compose** command to build up and start the **ELK Containers**
    ```console
    kanel@Mac-Pro elk % sudo docker-compose up -d
    Password:
    ```
-6. Access to **Kibana Dashboard** via a web browser
-
+6. When the deployment has started, open a browser and access to **Kibana Dashboard**, where you can load sample data and interact with your cluster  
    ___From Docker Host:___
    ```console
    http://localhost:5601
@@ -83,6 +82,17 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    ___From other clients:___ access to Docker Host via its IP address or hostname 
    ```console
    http://docker-hostname:5601
+   ```
+
+### Stop and remove the deployment
+
+1. To stop the cluster, run `docker-compose down`. The data in the Docker volumes is preserved and loaded when you restart the cluster with `docker-compose up`.
+   ```console
+   kanel@Mac-Pro elk % sudo docker-compose down
+   ```
+2. To delete the network, containers, and volumes when you stop the cluster, specify the `-v` option:
+   ```console
+   kanel@Mac-Pro elk % sudo docker-compose down -v
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -95,7 +105,7 @@ Define your personal variables in `.env` file. These variables are used in the e
 
 Here is an example with ELK Stack version `7.17.7`:
   ```dockerfile
-  ELK_VERSION=7.17.7
+  ELK_VERSION="7.17.7"
   ES_JAVA_OPTS="-Xmx256m -Xms256m"
   LS_JAVA_OPTS="-Xmx256m -Xms256m"
   HOSTNAME_ELASTIC="cont-elastic"
@@ -585,14 +595,14 @@ kanel@Mac-Pro elk % sudo docker compose down
 >- Disable swapping:
 >   ```java
 >   Swapping needs to be disabled for performance and node stability.
->   For information about ways to do this, see:
->   'https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html'
+>   For information about ways to do this, see [Elasticsearch important memory configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html).
 >   ```  
 >- Define the memlock:
 >   ```js
 >   If you opt for the `bootstrap.memory_lock: true` approach, you also need to define the
 >   `memlock: true` ulimit in the Docker Daemon, or explicitly set for the container as shown
 >   in the docker-compose file. When using docker run, you can specify:
+>
 >   -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1
 >   ```    
 
