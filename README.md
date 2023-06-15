@@ -9,6 +9,11 @@ An Elastic Stack [Elasticsearch - Logstash - Kibana - Beats] running on Docker w
 
 The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic Stack**, runs on various setups and operating systems. A simple way to try out, install and test the ELK stack is to run it on Docker.
 
+![image](https://github.com/kanelorange/elk/assets/21073376/1c882f34-67cb-4659-aacb-d316e4189eb0)
+
+With the introduction of Metricbeat as the agent for collecting and shipping monitoring data, the need to route monitoring data through the production cluster has been removed. Monitoring data can now be collected by an independent, lightweight monitoring agent and sent directly to the monitoring cluster.  
+
+Using Metricbeat for monitoring collection means less work for the production cluster and more resilience for your monitoring setup.
 <!-- GETTING STARTED -->
 ## Getting Started
 
