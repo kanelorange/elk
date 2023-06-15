@@ -408,11 +408,13 @@ kanel@Mac-Pro elk % sudo docker compose down
 <!-- TROUBLESHOOTING -->
 ## Troubleshooting
 
->### How to fix Elasticsearch docker container errors
+>### How to fix Elasticsearch docker container failed to start
 >___Error:___
+>```ruby  
+>ElasticsearchException[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes]
+>```
 >```ruby
->cont_elastic           | "stacktrace": "org.elasticsearch.bootstrap.StartupException: ElasticsearchException
->[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
+>cont_elastic           | "stacktrace": "org.elasticsearch.bootstrap.StartupException: ElasticsearchException[failed to bind service]; nested: AccessDeniedException[/usr/share/elasticsearch/data/nodes];
 >```
 ><details>
 >  <summary><b><i>Error Logs:</i></b></summary>
