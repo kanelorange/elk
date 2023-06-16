@@ -81,7 +81,7 @@ discovery.seed_hosts: ["ELK-Master"]
 # Bootstrap the cluster using an initial set of master-eligible nodes:
 #
 #cluster.initial_master_nodes: ["node-1", "node-2"]
-
+cluster.initial_master_nodes: ["ELK-Master"]
 #
 #discovery.type: single-node
 #

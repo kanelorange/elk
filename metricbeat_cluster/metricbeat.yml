@@ -1,6 +1,36 @@
 ########################## Metricbeat Configuration ###########################
 
+#============================  Config Reloading ===============================
+
+# Config reloading allows to dynamically load modules. Each file which is
+# monitored must contain one or multiple modules as a list.
+metricbeat.config.modules:
+
+  # Glob pattern for configuration reloading
+  path: ${path.config}/modules.d/*.yml
+
+  # Period on which files under path should be checked for changes
+  reload.period: 10s
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+# Maximum amount of time to randomly delay the start of a metricset. Use 0 to
+# disable startup delay.
+metricbeat.max_start_delay: 10s
+
+#============================== Autodiscover ===================================
+
+# Autodiscover allows you to detect changes in the system and spawn new modules
+# as they happen.
+
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
 #==========================  Modules configuration =============================
+
 metricbeat.modules:
 
 #-------------------------------- System Module --------------------------------
@@ -32,6 +62,19 @@ metricbeat.modules:
   cpu.metrics:  ["percentages","normalized_percentages"]  # The other available option is ticks.
   core.metrics: ["percentages"]  # The other available option is ticks.
 
+#--------------------------------- Beat Module ---------------------------------
+- module: beat
+  metricsets:
+    - stats
+    - state
+  enabled: true
+  period: 10s
+  hosts: ["http://${HOSTNAME_METRICBEAT}:5066"]
+
+  # Set to true to send data collected by module to X-Pack
+  # Monitoring instead of metricbeat-* indices.
+  xpack.enabled: true
+
 #-------------------------------- Docker Module --------------------------------
 - module: docker
   metricsets:
@@ -49,6 +92,55 @@ metricbeat.modules:
   period: 10s
   enabled: true
 
+#---------------------------- Elasticsearch Module ----------------------------
+- module: elasticsearch
+  metricsets:
+    - node
+    - node_stats
+    #- index
+    #- index_recovery
+    #- index_summary
+    #- ingest_pipeline
+    #- shard
+    #- ml_job
+  enabled: true
+  period: 10s
+  hosts: ["http://${HOSTNAME_ELASTIC}:9200"]
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+
+  #index_recovery.active_only: true
+  #ingest_pipeline.processor_sample_rate: 0.25
+  xpack.enabled: true
+  #scope: node
+
+#-------------------------------- Kibana Module --------------------------------
+- module: kibana
+  metricsets: ["status"]
+  enabled: true
+  period: 10s
+  hosts: ["${HOSTNAME_KIBANA}:5601"]
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+  basepath: ""
+  enabled: true
+
+  # Set to true to send data collected by module to X-Pack
+  # Monitoring instead of metricbeat-* indices.
+  xpack.enabled: true
+
+#------------------------------- Logstash Module -------------------------------
+- module: logstash
+  metricsets: ["node", "node_stats"]
+  enabled: false
+  period: 10s
+  hosts: ["${HOSTNAME_LOGSTASH}:9600"]
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+  # Set to true to send data collected by module to X-Pack
+  # Monitoring instead of metricbeat-* indices.
+  xpack.enabled: true
+
 # ================================= Processors =================================
 
 # Processors are used to reduce the number of fields in the exported event or to
@@ -62,6 +154,22 @@ processors:
     format: offset
 - add_host_metadata:
     netinfo.enabled: true
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+# If this options is not defined, the hostname is used.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published. Tags make it easy to group servers by different
+# logical properties.
+#tags: ["service-X", "web-tier"]
+
+# Sets the maximum number of CPUs that can be executing simultaneously. The
+# default is the number of logical CPUs available in the system.
+#max_procs:
 
 # ================================== Outputs ===================================
 
@@ -93,16 +201,36 @@ output.elasticsearch:
   #username: "${ELASTIC_USERNAME}"
   #password: "${ELASTIC_PASSWORD}"
 
+# ------------------------------- Console Output -------------------------------
+#output.console:
+  # Boolean flag to enable or disable the output module.
+  #enabled: true
+
+  # Configure JSON encoding
+  #codec.json:
+    # Pretty-print JSON event
+    #pretty: false
+
+    # Configure escaping HTML symbols in strings.
+    #escape_html: false
+
 # ================================= Dashboards =================================
 
 # These settings control loading the sample dashboards to the Kibana index. Loading
 # the dashboards are disabled by default and can be enabled either by setting the
 # options here, or by using the `-setup` CLI flag or the `setup` command.
-setup.dashboards.enabled: false
+setup.dashboards.enabled: true
 
 # The URL from where to download the dashboards archive. It is used instead of
 # the directory if it has a value.
 #setup.dashboards.url:
+
+# The name of the Kibana index to use for setting the configuration. Default is ".kibana"
+#setup.dashboards.kibana_index: .kibana
+
+# The Elasticsearch index name. This overwrites the index name defined in the
+# dashboards and index pattern. Example: testbeat-*
+#setup.dashboards.index:
 
 # =================================== Kibana ===================================
 
@@ -190,18 +318,37 @@ setup.kibana:
   #_source:
     #enabled: false
 
-#============================== Xpack Monitoring ===============================
+# ============================= X-Pack Monitoring ==============================
 
-# metricbeat can export internal metrics to a central Elasticsearch monitoring
-# cluster. This requires xpack monitoring to be enabled in Elasticsearch. The
+# Metricbeat can export internal metrics to a central Elasticsearch monitoring
+# cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
 # reporting is disabled by default.
 
 # Set to true to enable the monitoring reporter.
-xpack.monitoring.enabled: true
+xpack.monitoring.enabled: false
 
 # Uncomment to send the metrics to Elasticsearch. Most settings from the
-# Elasticsearch output are accepted here as well. Any setting that is not set is
-# automatically inherited from the Elasticsearch output configuration, so if you
-# have the Elasticsearch output configured, you can simply uncomment the
-# following line.
-xpack.monitoring.elasticsearch:
+# Elasticsearch output are accepted here as well.
+# Note that the settings should point to your Elasticsearch *monitoring* cluster.
+# Any setting that is not set is automatically inherited from the Elasticsearch
+# output configuration, so if you have the Elasticsearch output configured such
+# that it is pointing to your Elasticsearch monitoring cluster, you can simply
+# uncomment the following line.
+#xpack.monitoring.elasticsearch:
+
+# =============================== HTTP Endpoint ================================
+
+# Each beat can expose internal metrics through a HTTP endpoint. For security
+# reasons the endpoint is disabled by default. This feature is currently experimental.
+# Stats can be access through http://localhost:5066/stats . For pretty JSON output
+# append ?pretty to the URL.
+
+# Defines if the HTTP endpoint is enabled.
+http.enabled: true
+
+# The HTTP endpoint will bind to this hostname, IP address, unix socket or named pipe.
+# When using IP addresses, it is recommended to only use localhost.
+http.host: 0.0.0.0
+
+# Port on which the HTTP endpoint will bind. Default is 5066.
+http.port: 5066
