@@ -98,6 +98,7 @@ services:
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
       HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_FILEBEAT: ${HOSTNAME_FILEBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
 #=======================================
@@ -139,6 +140,7 @@ services:
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
       HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_FILEBEAT: ${HOSTNAME_FILEBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     healthcheck:
@@ -149,7 +151,7 @@ services:
       retries: 30
 #=======================================
   # Metricbeat container for Elastic Stack monitoring  
-  metricbeat_cluster:
+  metricbeat-cluster:
     # Wait until < E-L-K > has started
     depends_on:
       elasticsearch:
@@ -175,8 +177,8 @@ services:
     hostname: ${HOSTNAME_METRICBEAT}
     networks:
       - localnet
-    ports:
-      - "5066:5066"
+    expose:
+      - "5066"
     volumes:
       # Mount metricbeat configuration file to container
       - type: bind
@@ -196,6 +198,62 @@ services:
       HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
       HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
       HOSTNAME_METRICBEAT: ${HOSTNAME_METRICBEAT}
+      HOSTNAME_FILEBEAT: ${HOSTNAME_FILEBEAT}
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+#=======================================
+  # Filebeat container for Elastic Stack logs  
+  filebeat-cluster:
+    # Wait until < E-L-K > has started
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      logstash:
+        condition: service_started
+      kibana:
+        condition: service_healthy
+    container_name: cont_filebeat_cluster
+    #-----------------------------------
+    # Pull image via docker-compose file
+    #image: elastic/filebeat:${ELK_VERSION}
+    #-----------------------------------
+    # Build up image via Dockerfile and tag it
+    build:
+      context: ./filebeat_cluster
+      dockerfile: Dockerfile
+      tags:
+        - "kanelorange/filebeat-cluster:${ELK_VERSION}"
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    #-----------------------------------
+    hostname: ${HOSTNAME_FILEBEAT}
+    networks:
+      - localnet
+    expose:
+      - "5066"
+    volumes:
+      # Mount filebeat configuration file to container
+      - type: bind
+        source: ./filebeat_cluster/filebeat.yml
+        #target: /usr/share/metricbeat/config/filebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+      # Mount docker-host-running directory to container
+      #- /:/hostfs:ro
+      #- /proc:/hostfs/proc:ro
+      #- /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      #- /run/systemd/private:/run/systemd/private:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      # This is needed for filebeat to load container log path as specified in filebeat.yml
+      - /var/lib/docker/containers/:/var/lib/docker/containers/:ro
+      # This is needed for filebeat to load logs for system and auth modules
+      - /var/log/:/var/log/:ro
+    user: root
+    environment:
+      HOSTNAME_ELASTIC: ${HOSTNAME_ELASTIC}
+      HOSTNAME_LOGSTASH: ${HOSTNAME_LOGSTASH}
+      HOSTNAME_KIBANA: ${HOSTNAME_KIBANA}
+      HOSTNAME_FILEBEAT: ${HOSTNAME_FILEBEAT}
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
 #=======================================

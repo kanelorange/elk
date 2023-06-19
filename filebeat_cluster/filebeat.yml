@@ -1,0 +1,436 @@
+######################## Filebeat Configuration ############################
+
+# =========================== Filebeat autodiscover ============================
+
+# Autodiscover allows you to detect changes in the system and spawn new modules
+# or inputs as they happen.
+
+filebeat.autodiscover:
+  # List of enabled autodiscover providers
+  providers:
+    - type: docker
+      hints.enabled: true
+      templates:
+        # Discover Elasticsearch services
+        - condition.contains:
+            docker.container.image: elasticsearch
+          config:
+            - module: elasticsearch
+              server:
+                input:
+                  type: container
+                  paths:
+                    - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              gc:
+                input:
+                  type: container
+                  paths:
+                    - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              audit:
+                input:
+                  type: container
+                  paths:
+                    - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              slowlog:
+                input:
+                  type: container
+                  paths:
+                    - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+              deprecation:
+                input:
+                  type: container
+                  paths:
+                    - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+        # Fallback config when no condition match:
+        - config:
+            - type: container
+              paths:
+                - "/var/lib/docker/containers/${data.docker.container.id}/*.log"
+
+#==========================  Modules configuration =============================
+filebeat.modules:
+
+#-------------------------------- System Module --------------------------------
+#- module: system
+  # Syslog
+  #syslog:
+    #enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+    # Input configuration (advanced). Any input configuration option
+    # can be added under this section.
+    #input:
+
+  # Authorization logs
+  #auth:
+    #enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+    # Input configuration (advanced). Any input configuration option
+    # can be added under this section.
+    #input:
+
+#---------------------------- Elasticsearch Module ----------------------------
+- module: elasticsearch
+  # Server log
+  server:
+    enabled: false
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  gc:
+    enabled: false
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  audit:
+    enabled: false
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  slowlog:
+    enabled: false
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  deprecation:
+    enabled: false
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+#-------------------------------- Kibana Module --------------------------------
+- module: kibana
+  # Server logs
+  log:
+    enabled: false
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+  # Audit logs
+  audit:
+    enabled: false
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+#------------------------------- Logstash Module -------------------------------
+#- module: logstash
+  # logs
+  #log:
+    #enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    # var.paths:
+
+  # Slow logs
+  #slowlog:
+    #enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    #var.paths:
+
+#=========================== Filebeat inputs =============================
+
+# List of inputs to fetch data.
+filebeat.inputs:
+# Each - is an input. Most options can be set at the input level, so
+# you can use different inputs for various configurations.
+# Below are the input specific configurations.
+
+# Type of the files. Based on this the way the file is read is decided.
+# The different types cannot be mixed in one input
+#
+# Possible options are:
+# * filestream: Reads every line of the log file
+# * log: Reads every line of the log file (deprecated)
+# * stdin: Reads the standard in
+
+#------------------------------ Log input --------------------------------
+- type: log
+
+  # Change to true to enable this input configuration.
+  enabled: false
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  # To fetch all ".log" files from a specific level of subdirectories
+  # /var/log/*/*.log can be used.
+  # For each file found under this path, a harvester is started.
+  # Make sure not file is defined twice as this can lead to unexpected behaviour.
+  paths:
+    #- /var/log/*.log
+    #- c:\programdata\elasticsearch\logs\*
+
+  # Configure the file encoding for reading files with international characters
+  # following the W3C recommendation for HTML5 (http://www.w3.org/TR/encoding).
+  # Some sample encodings:
+  #   plain, utf-8, utf-16be-bom, utf-16be, utf-16le, big5, gb18030, gbk,
+  #    hz-gb-2312, euc-kr, euc-jp, iso-2022-jp, shift-jis, ...
+  #encoding: plain
+
+  # Exclude lines. A list of regular expressions to match. It drops the lines that are
+  # matching any regular expression from the list. The include_lines is called before
+  # exclude_lines. By default, no lines are dropped.
+  #exclude_lines: ['^DBG']
+
+  # Include lines. A list of regular expressions to match. It exports the lines that are
+  # matching any regular expression from the list. The include_lines is called before
+  # exclude_lines. By default, all the lines are exported.
+  #include_lines: ['^ERR', '^WARN']
+
+  # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+  # are matching any regular expression from the list. By default, no files are dropped.
+  #exclude_files: ['.gz$']
+
+  # Method to determine if two files are the same or not. By default
+  # the Beat considers two files the same if their inode and device id are the same.
+  #file_identity.native: ~
+
+  # Optional additional fields. These fields can be freely picked
+  # to add additional information to the crawled log files for filtering
+  #fields:
+  #  level: debug
+  #  review: 1
+
+#--------------------------- Filestream input ----------------------------
+- type: filestream
+
+  # Unique ID among all inputs, an ID is required.
+  id: my-filestream-id
+
+  # Change to true to enable this input configuration.
+  enabled: false
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  # To fetch all ".log" files from a specific level of subdirectories
+  # /var/log/*/*.log can be used.
+  # For each file found under this path, a harvester is started.
+  # Make sure not file is defined twice as this can lead to unexpected behaviour.
+  paths:
+    - /var/log/*.log
+    #- c:\programdata\elasticsearch\logs\*
+
+  # Configure the file encoding for reading files with international characters
+  # following the W3C recommendation for HTML5 (http://www.w3.org/TR/encoding).
+  # Some sample encodings:
+  #   plain, utf-8, utf-16be-bom, utf-16be, utf-16le, big5, gb18030, gbk,
+  #    hz-gb-2312, euc-kr, euc-jp, iso-2022-jp, shift-jis, ...
+  #encoding: plain
+
+  # Exclude lines. A list of regular expressions to match. It drops the lines that are
+  # matching any regular expression from the list. The include_lines is called before
+  # exclude_lines. By default, no lines are dropped.
+  # Line filtering happens after the parsers pipeline. If you would like to filter lines
+  # before parsers, use include_message parser.
+  #exclude_lines: ['^DBG']
+
+  # Include lines. A list of regular expressions to match. It exports the lines that are
+  # matching any regular expression from the list. The include_lines is called before
+  # exclude_lines. By default, all the lines are exported.
+  # Line filtering happens after the parsers pipeline. If you would like to filter lines
+  # before parsers, use include_message parser.
+  #include_lines: ['^ERR', '^WARN']
+
+# ======================= Elasticsearch template setting =======================
+
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+setup.dashboards.enabled: true
+
+# The URL from where to download the dashboards archive. By default this URL
+# has a value which is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  #host: "localhost:5601"
+  host: "${HOSTNAME_KIBANA}:5601"
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+  
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# ---------------------------- Elasticsearch Output ----------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  #hosts: ["localhost:9200"]
+  hosts: ["${HOSTNAME_ELASTIC}:9200"]
+  # Boolean flag to enable or disable the output module.
+  enabled: true
+  # Authentication
+  username: "${ELASTIC_USERNAME}"
+  password: "${ELASTIC_PASSWORD}"
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  #username: "elastic"
+  #password: "changeme"
+
+# ------------------------------ Logstash Output -------------------------------
+#output.logstash:
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+  
+  #hosts: ["${HOSTNAME_LOGSTASH}:5044"]
+  # Boolean flag to enable or disable the output module.
+  #enabled: true
+  # Authentication
+  #username: "${ELASTIC_USERNAME}"
+  #password: "${ELASTIC_PASSWORD}"
+  
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+# ================================= Processors =================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+
+# ================================== Logging ===================================
+
+# There are four options for the log output: file, stderr, syslog, eventlog
+# The file output is the default.
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+#logging.level: info
+
+# Enable debug output for selected components. To enable all selectors use ["*"]
+# Other available selectors are "beat", "publisher", "service"
+# Multiple selectors can be chained.
+#logging.selectors: ["*"]
+
+# Send all logging output to stderr. The default is false.
+#logging.to_stderr: false
+
+# Send all logging output to syslog. The default is false.
+#logging.to_syslog: false
+
+# Send all logging output to Windows Event Logs. The default is false.
+#logging.to_eventlog: false
+
+# If enabled, Filebeat periodically logs its internal metrics that have changed
+# in the last period. For each metric that changed, the delta from the value at
+# the beginning of the period is logged. Also, the total values for
+# all non-zero internal metrics are logged on shutdown. The default is true.
+#logging.metrics.enabled: true
+
+# The period after which to log the internal metrics. The default is 30s.
+#logging.metrics.period: 30s
+
+# A list of metrics namespaces to report in the logs. Defaults to [stats].
+# `stats` contains general Beat metrics. `dataset` may be present in some
+# Beats and contains module or input metrics.
+#logging.metrics.namespaces: [stats]
+
+# ============================= X-Pack Monitoring ==============================
+
+# Filebeat can export internal metrics to a central Elasticsearch monitoring
+# cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
+# reporting is disabled by default.
+
+# Set to true to enable the monitoring reporter.
+#monitoring.enabled: false
+
+# Sets the UUID of the Elasticsearch cluster under which monitoring data for this
+# Filebeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
+# is enabled, the UUID is derived from the Elasticsearch cluster referenced by output.elasticsearch.
+#monitoring.cluster_uuid:
+
+# Uncomment to send the metrics to Elasticsearch. Most settings from the
+# Elasticsearch output are accepted here as well.
+# Note that the settings should point to your Elasticsearch *monitoring* cluster.
+# Any setting that is not set is automatically inherited from the Elasticsearch
+# output configuration, so if you have the Elasticsearch output configured such
+# that it is pointing to your Elasticsearch monitoring cluster, you can simply
+# uncomment the following line.
+#monitoring.elasticsearch:
+
+# Legacy version:
+xpack.monitoring.enabled: false
+#xpack.monitoring.elasticsearch:
+
+# =============================== HTTP Endpoint ================================
+
+# Each beat can expose internal metrics through a HTTP endpoint. For security
+# reasons the endpoint is disabled by default. This feature is currently experimental.
+# Stats can be access through http://localhost:5066/stats . For pretty JSON output
+# append ?pretty to the URL.
+
+# Defines if the HTTP endpoint is enabled.
+http.enabled: true
+
+# The HTTP endpoint will bind to this hostname, IP address, unix socket or named pipe.
+# When using IP addresses, it is recommended to only use localhost.
+#http.host: localhost
+http.host: 0.0.0.0
+
+# Port on which the HTTP endpoint will bind. Default is 5066.
+http.port: 5066

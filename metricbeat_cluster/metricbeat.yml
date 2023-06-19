@@ -69,7 +69,7 @@ metricbeat.modules:
     - state
   enabled: true
   period: 10s
-  hosts: ["http://${HOSTNAME_METRICBEAT}:5066"]
+  hosts: ["http://${HOSTNAME_METRICBEAT}:5066","http://${HOSTNAME_FILEBEAT}:5066"]
 
   # Set to true to send data collected by module to X-Pack
   # Monitoring instead of metricbeat-* indices.
@@ -253,7 +253,7 @@ setup.kibana:
 # Enable debug output for selected components. To enable all selectors use ["*"]
 # Other available selectors are "beat", "publisher", "service"
 # Multiple selectors can be chained.
-#logging.selectors: [ ]
+#logging.selectors: ["*"]
 
 # Send all logging output to stderr. The default is false.
 #logging.to_stderr: false
@@ -348,6 +348,7 @@ http.enabled: true
 
 # The HTTP endpoint will bind to this hostname, IP address, unix socket or named pipe.
 # When using IP addresses, it is recommended to only use localhost.
+#http.host: localhost
 http.host: 0.0.0.0
 
 # Port on which the HTTP endpoint will bind. Default is 5066.
