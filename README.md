@@ -13,7 +13,26 @@ The **ELK** [Elasticsearch, Logstash, Kibana] stack, also known as the **Elastic
 
 With the introduction of Metricbeat as the agent for collecting and shipping monitoring data, the need to route monitoring data through the production cluster has been removed. Monitoring data can now be collected by an independent, lightweight monitoring agent and sent directly to the monitoring cluster.  
 
-Using Metricbeat for monitoring collection means less work for the production cluster and more resilience for your monitoring setup.
+Using Metricbeat for monitoring collection means less work for the production cluster and more resilience for your monitoring setup.  
+
+**What are Beats?**  
+
+Beats are open source data shippers that you install as agents on your servers to send operational data to Elasticsearch. Elastic provides Beats for capturing:
+
+TYPE  | LIBBEAT
+------------- | -------------
+Auditbeat  | Audit data
+Log files and journals  | Filebeat
+Cloud data  | Functionbeat
+Availability  | Heartbeat
+Metrics  | Metricbeat
+Network traffic  | Packetbeat
+Windows event logs  | Winlogbeat
+
+Beats can send data directly to Elasticsearch or via Logstash, where you can further process and enhance the data, before visualizing it in Kibana.
+
+![image](https://github.com/kanelorange/elk/assets/21073376/120a325d-5692-4a93-a21e-1394e5c3bf1c)
+
 <!-- GETTING STARTED -->
 ## Getting Started
 
