@@ -52,7 +52,14 @@ ___Chosen variables:___ These variables can be edited in `.env` file
 - Password: `kanelelk`
 
 ___Best practice:___ CentOS 7 Server  
-Learn how to install Docker Engine on CentOS at https://docs.docker.com/engine/install/centos/.
+Learn how to install Docker Engine on CentOS at https://docs.docker.com/engine/install/centos/.  
+- Docker Host:
+  - CentOS Linux 7
+- Docker Server:
+  - Docker Client v24.0.2
+  - Docker Engine v24.0.2
+  - Docker Compose v2.18.1
+  - OS/Arch: linux/amd64
 
 ___Other environment:___ MacOS X  
 Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/install/mac-install/.  
@@ -169,10 +176,6 @@ Here is an example with ELK Stack version `7.17.7`:
   FROM elastic/metricbeat:${ELK_VERSION}
   #USER root
   ```
-> **Note**  
-> Note that `/run/docker.sock` file is created after Metricbeat container is created successfull. You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]. The `docker.sock` file is used for _docker module_ monitoring.  
-> User `root` can be defined in `Dockerfile` or `docker-compose.yaml` file.
-
 - Create `Dockerfile` in `elk\filebeat_cluster` directory:
   ```dockerfile
   ARG ELK_VERSION
@@ -180,6 +183,19 @@ Here is an example with ELK Stack version `7.17.7`:
   FROM elastic/filebeat:${ELK_VERSION}
   #USER root
   ```
+  
+> **Note**  
+> Note that `/run/docker.sock` file is created after Beats container is created successfull.
+> Some errors may occur related to autodiscover provider or Docker daemon listening to UNIX socket:
+>   
+> _`ERROR	instance/beat.go:123	Exiting: error in autodiscover provider settings: error setting up docker autodiscover provider: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock`_  
+>  
+> You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ].
+> The `docker.sock` file is used for _autodiscover provider_ or _docker module_ monitoring.
+> User `root` can be defined in `Dockerfile` or `docker-compose.yaml` file.
+>  
+> You can disable strict permission checks from the command line by using `--strict.perms=false`, but we strongly encourage you to leave the checks enabled.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
