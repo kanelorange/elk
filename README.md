@@ -190,7 +190,7 @@ Here is an example with ELK Stack version `7.17.7`:
 >   
 > _`ERROR	instance/beat.go:123	Exiting: error in autodiscover provider settings: error setting up docker autodiscover provider: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock`_  
 >  
-> You must change to user `root` or grant permission: RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ].
+> You must change to user `root` or grant permission: `RUN [ "/bin/sh", "-c", "chmod 775 /run/docker.sock" ]`.
 > The `docker.sock` file is used for _autodiscover provider_ or _docker module_ monitoring.
 > User `root` can be defined in `Dockerfile` or `docker-compose.yaml` file.
 >  
