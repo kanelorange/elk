@@ -677,10 +677,12 @@ kanel@Mac-Pro elk % sudo docker compose down
 ># Beat instance in a "Standalone Cluster".
 >```
 >___Solution:___
->   ```console
->   As a temporary workaround, you can go back to using the deprecated xpack.monitoring.*
->   settings (instead of the new monitoring.* ones). However, please note that the
->   xpack.monitoring.* settings will eventually go away in a future major version.
+>   ```yaml
+>   # As a temporary workaround, you can go back to using the deprecated
+>   # xpack.monitoring.* settings (instead of the new monitoring.* ones).
+>   # However, please note that the xpack.monitoring.* settings will
+>   # eventually go away in a future major version.
+>   
 >   ``` 
 
 >### How to fix `bootstrap check failure: memory locking requested...`
