@@ -125,7 +125,18 @@ Learn how to install Docker Desktop on MacOS at https://docs.docker.com/desktop/
    ```console
    kanel@Mac-Pro elk % sudo docker-compose down -v
    ```
-
+3. To stop one or more running containers, specify container names or IDs:
+   ```console
+   kanel@Mac-Pro elk % sudo docker container stop cont_elastic cont_logstash cont_kibana cont_metricbeat_cluster cont_filebeat_cluster
+   kanel@Mac-Pro elk % sudo docker ps -a
+   CONTAINER ID   IMAGE                    COMMAND                  CREATED       STATUS                        PORTS     NAMES
+   0687639a03e8   elk-metricbeat-cluster   "/usr/bin/tini -- /u…"   3 hours ago   Exited (0) 18 seconds ago               cont_metricbeat_cluster
+   b2202ec881dd   elk-filebeat-cluster     "/usr/bin/tini -- /u…"   3 hours ago   Exited (0) 22 seconds ago               cont_filebeat_cluster
+   79f60518f8f2   elk-kibana               "/bin/tini -- /usr/l…"   3 hours ago   Exited (0) 21 seconds ago               cont_kibana
+   f8621387c799   elk-logstash             "/usr/local/bin/dock…"   3 hours ago   Exited (0) 13 seconds ago               cont_logstash
+   4542405eeec4   elk-elasticsearch        "/bin/tini -- /usr/l…"   3 hours ago   Exited (143) 19 seconds ago             cont_elastic
+   ```
+   
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE -->
